@@ -60,6 +60,8 @@ struct WorkoutDetailView: View {
         }
         .onDisappear {
             stopTimer()
+            // Reset completed status when leaving the view
+            resetCompletedStatus()
         }
     }
     
@@ -95,8 +97,24 @@ struct WorkoutDetailView: View {
                 modelContext.insert(history)
             }
             
+            // Reset completed status before dismissing
+            resetCompletedStatus()
+            
             // Navigate back
             dismiss()
+        }
+    }
+    
+    private func resetCompletedStatus() {
+        // Reset the completed property for all exercises in this group
+        exercises.forEach { exercise in
+            exercise.completed = false
+        }
+        // Save the changes to SwiftData
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving context after resetting completed status: \(error)")
         }
     }
 }
