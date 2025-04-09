@@ -1,0 +1,355 @@
+{
+    "Routine A": [
+      {
+        "id": "some-uuid-1",
+        "group": "Falcon",
+        "name": "BB Squat",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 160,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-2",
+        "group": "Falcon",
+        "name": "Incline DB Press",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 45,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-3",
+        "group": "Falcon",
+        "name": "DB Seal Row",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 40,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-4",
+        "group": "Falcon",
+        "name": "One Arm Delta Fly's",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 20,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-5",
+        "group": "Falcon",
+        "name": "Leg Raises",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ],
+    "Routine B": [
+      {
+        "id": "some-uuid-6",
+        "group": "Deep Horizon",
+        "name": "Bulgarian Split Squat",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 20,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-7",
+        "group": "Deep Horizon",
+        "name": "Military Press",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 60,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-8",
+        "group": "Deep Horizon",
+        "name": "Lat Pulldown",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 120,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-9",
+        "group": "Deep Horizon",
+        "name": "Rear Delta Fly",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 20,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-10",
+        "group": "Deep Horizon",
+        "name": "Leg Raises",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ],
+    "Routine C": [
+      {
+        "id": "some-uuid-11",
+        "group": "Challanger",
+        "name": "Leg Press",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 160,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-12",
+        "group": "Challanger",
+        "name": "Incline Chest Machine",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 70,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-13",
+        "group": "Challanger",
+        "name": "Back Row Machine",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 140,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-14",
+        "group": "Challanger",
+        "name": "Sholder Press Machine",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 60,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-15",
+        "group": "Challanger",
+        "name": "Leg Raises",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ],
+    "Routine D": [
+      {
+        "id": "some-uuid-16",
+        "group": "Trident",
+        "name": "Bench D",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 135,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-17",
+        "group": "Trident",
+        "name": "Curls D",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 50,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-18",
+        "group": "Trident",
+        "name": "Fly's",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 40,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-19",
+        "group": "Trident",
+        "name": "Chin Raises",
+        "numReps": 8,
+        "numSets": 4,
+        "weight": 60,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-20",
+        "group": "Trident",
+        "name": "Leg Raises",
+        "numReps": 8,
+        "numSets": 3,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ],
+    "Routine Stretch": [
+      {
+        "id": "some-uuid-21",
+        "group": "stretch",
+        "name": "Band Pulls",
+        "numReps": 12,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-22",
+        "group": "stretch",
+        "name": "Glute Back Bridges",
+        "numReps": 20,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-23",
+        "group": "stretch",
+        "name": "Hip Flexor Stretch",
+        "numReps": 3,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-24",
+        "group": "stretch",
+        "name": "Yoga Push Up",
+        "numReps": 4,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-25",
+        "group": "stretch",
+        "name": "Fire Hydrant",
+        "numReps": 10,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ],
+    "Routine Calisthenics": [
+      {
+        "id": "some-uuid-26",
+        "group": "Calisthenics",
+        "name": "Push Ups",
+        "numReps": 10,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-27",
+        "group": "Calisthenics",
+        "name": "Sit Ups",
+        "numReps": 10,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-28",
+        "group": "Calisthenics",
+        "name": "Squats",
+        "numReps": 10,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-29",
+        "group": "Calisthenics",
+        "name": "Back Lunges",
+        "numReps": 10,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-30",
+        "group": "Calisthenics",
+        "name": "Jump Squats",
+        "numReps": 10,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      },
+      {
+        "id": "some-uuid-31",
+        "group": "Calisthenics",
+        "name": "Side Plank",
+        "numReps": 1,
+        "numSets": 2,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
+    ]
+}

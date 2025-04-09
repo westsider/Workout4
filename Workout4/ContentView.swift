@@ -9,53 +9,62 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @State private var lastWorkoutGroup: String?
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+        TabView {
+            TrainingPlanView(lastWorkoutGroup: $lastWorkoutGroup)
+                .tabItem {
+                    Label("Home", systemImage: "list.bullet")
                 }
-                .onDelete(perform: deleteItems)
-            }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+            
+            GymMembershipView()
+                .tabItem {
+                    Label("Membership", systemImage: "person.fill")
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+            
+            HistoryView()
+                .tabItem {
+                    Label("History", systemImage: "clock.fill")
                 }
-            }
-        } detail: {
-            Text("Select an item")
+        }
+        .onAppear {
+            // Load last workout group from UserDefaults
+            lastWorkoutGroup = UserDefaults.standard.string(forKey: "lastWorkoutGroup")
+            
+            // Load exercises from the JSON file
+            loadInitialData()
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+    
+    private func loadInitialData() {
+        // Check if data is already loaded to avoid duplicates
+        let fetchDescriptor = FetchDescriptor<Exercise>()
+        do {
+            let existingExercises = try modelContext.fetch(fetchDescriptor)
+            if existingExercises.isEmpty {
+                // Load the JSON file from the bundle
+                if let url = Bundle.main.url(forResource: "exercise", withExtension: "json") {
+                    do {
+                        let data = try Data(contentsOf: url)
+                        let jsonString = String(data: data, encoding: .utf8)
+                        if let jsonString = jsonString {
+                            loadExercises(from: jsonString, context: modelContext)
+                        } else {
+                            print("Error: Could not convert JSON data to string")
+                        }
+                    } catch {
+                        print("Error loading JSON file: \(error)")
+                    }
+                } else {
+                    print("Error: Could not find exercise.json in the bundle")
+                }
+            } else {
+                print("Data already loaded: \(existingExercises.count) exercises")
             }
+        } catch {
+            print("Error checking existing exercises: \(error)")
         }
     }
 }
