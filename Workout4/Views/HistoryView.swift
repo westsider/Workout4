@@ -9,7 +9,8 @@ import SwiftData
 import SwiftUI
 
 struct HistoryView: View {
-    @Query private var history: [WorkoutHistory]
+    // Sort by date in descending order (newest first)
+    @Query(sort: \WorkoutHistory.date, order: .reverse) private var history: [WorkoutHistory]
     
     var body: some View {
         NavigationView {
@@ -22,7 +23,7 @@ struct HistoryView: View {
                     VStack(alignment: .leading) {
                         Text(entry.group)
                             .font(.headline)
-                        HStack {
+                        HStack{
                             Text(entry.date, style: .date)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
