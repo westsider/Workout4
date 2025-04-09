@@ -92,7 +92,7 @@ struct WorkoutDetailView: View {
                     id: UUID().uuidString,
                     group: group,
                     date: Date(),
-                    timeElapsed: timeElapsed
+                    timeElapsed: timeElapsed + 240 // 4 minute stretch
                 )
                 modelContext.insert(history)
             }

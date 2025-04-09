@@ -22,12 +22,14 @@ struct HistoryView: View {
                     VStack(alignment: .leading) {
                         Text(entry.group)
                             .font(.headline)
-                        Text(entry.date, style: .date)
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                        Text("Time Elapsed: \(entry.timeElapsed) seconds")
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
+                        HStack {
+                            Text(entry.date, style: .date)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                            Text("\(entry.timeElapsed / 60) minutes")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
                     }
                 }
                 .navigationTitle("History")
