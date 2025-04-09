@@ -9,35 +9,27 @@ import SwiftData
 import SwiftUI
 
 struct GymMembershipView: View {
+    @State var dateNow: Date = Date()
     var body: some View {
-        VStack {
-            Text("Warren Hansen")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            Text("Apr 9, 2025")
-                .font(.title2)
-                .foregroundColor(.gray)
-            
-            Image(systemName: "qrcode") // Placeholder for QR code
+        ZStack {
+            Image("pfAll")
                 .resizable()
-                .frame(width: 200, height: 200)
-                .padding()
-            
-            Text("3103824522")
-                .font(.title3)
-            
-            Text("PF Black Card® Membership")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("Have an awesome workout, Warren! You got this!")
-                .font(.subheadline)
-                .foregroundColor(.gray)
-                .padding()
-            
-            Spacer()
+
+            Text("\(dateNow.formatted(date: .abbreviated, time: .omitted))")
+                .font(.system(size: 28, design: .serif)).fontWeight(.heavy)
+                .foregroundStyle(.white)
+                .background(.black)
+                .offset(CGSize(width: 0.0, height: -290))
+               
         }
-        .navigationTitle("Club Pass")
+        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea()
+        .onAppear() {
+            dateNow = Date()
+        }
     }
+}
+
+#Preview {
+    GymMembershipView()
 }
