@@ -16,6 +16,15 @@ struct TrainingPlanView: View {
         Dictionary(grouping: exercises, by: { $0.group })
     }
     
+    // Custom sorted groups with "Stretch" and "Calisthenics" at the end
+    var sortedGroups: [String] {
+        let groups = groupedExercises.keys
+        let priorityGroups = groups.filter { $0.lowercased() != "stretch" && $0.lowercased() != "calisthenics" }.sorted()
+        let stretchGroup = groups.contains { $0.lowercased() == "stretch" } ? ["stretch"] : []
+        let calisthenicsGroup = groups.contains { $0.lowercased() == "calisthenics" } ? ["Calisthenics"] : []
+        return priorityGroups + stretchGroup + calisthenicsGroup
+    }
+    
     var body: some View {
         NavigationView {
             List {
@@ -24,7 +33,7 @@ struct TrainingPlanView: View {
                         .font(.title)
                         .foregroundColor(.gray)
                 } else {
-                    ForEach(groupedExercises.keys.sorted(), id: \.self) { group in
+                    ForEach(sortedGroups, id: \.self) { group in
                         NavigationLink(destination: WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup)) {
                             HStack {
                                 // Placeholder for the image
@@ -63,7 +72,7 @@ struct TrainingPlanView: View {
             .onAppear {
                 // Debug: Print the number of exercises fetched
                 print("Fetched \(exercises.count) exercises")
-                print("Groups: \(groupedExercises.keys.sorted())")
+                print("Groups: \(sortedGroups)")
             }
         }
     }
@@ -78,7 +87,7 @@ struct TrainingPlanView: View {
             return "Failure Is Not An Option"
         case "Trident":
             return "Only Easy Day Was Yesterday"
-        case "Stretch":
+        case "stretch":
             return "Just Let It Go"
         case "Calisthenics":
             return "" // No subtitle in the screenshot
@@ -88,7 +97,7 @@ struct TrainingPlanView: View {
     }
     
     private func formattedDate(for group: String) -> String {
-        if group == "Stretch" {
+        if group.lowercased() == "stretch" {
             return "Apr 9, 2025 10:09AM"
         }
         return "Feb 1, 2023 10:31PM"
