@@ -71,7 +71,7 @@ struct TrainingPlanView: View {
                     }
                 }
             }
-            .navigationTitle("Training Plan")
+            .navigationTitle("Basic Training")
             .onAppear {
                 // Debug: Print the number of exercises fetched
                 print("Fetched \(exercises.count) exercises")

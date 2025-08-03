@@ -8,7 +8,7 @@
 import SwiftUI
 import SwiftData
 
-struct ContentView: View {
+struct MainView: View {
     @State private var lastWorkoutGroup: String?
     @Environment(\.modelContext) private var modelContext
 
@@ -70,6 +70,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    MainView()
         .modelContainer(for: [Exercise.self, WorkoutHistory.self], inMemory: true)
 }

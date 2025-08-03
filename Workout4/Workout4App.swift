@@ -35,7 +35,7 @@ import SwiftData
 struct WorkoutApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainView()
                 .modelContainer(for: [Exercise.self, WorkoutHistory.self])
         }
     }
