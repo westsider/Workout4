@@ -71,4 +71,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .modelContainer(for: [Exercise.self, WorkoutHistory.self], inMemory: true)
 }

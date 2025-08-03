@@ -116,7 +116,7 @@
     "Routine C": [
       {
         "id": "some-uuid-11",
-        "group": "Challanger",
+        "group": "Challenger",
         "name": "Leg Press",
         "numReps": 8,
         "numSets": 4,
@@ -127,7 +127,7 @@
       },
       {
         "id": "some-uuid-12",
-        "group": "Challanger",
+        "group": "Challenger",
         "name": "Incline Chest Machine",
         "numReps": 8,
         "numSets": 4,
@@ -138,7 +138,7 @@
       },
       {
         "id": "some-uuid-13",
-        "group": "Challanger",
+        "group": "Challenger",
         "name": "Back Row Machine",
         "numReps": 8,
         "numSets": 4,
@@ -149,7 +149,7 @@
       },
       {
         "id": "some-uuid-14",
-        "group": "Challanger",
+        "group": "Challenger",
         "name": "Sholder Press Machine",
         "numReps": 8,
         "numSets": 4,
@@ -160,7 +160,7 @@
       },
       {
         "id": "some-uuid-15",
-        "group": "Challanger",
+        "group": "Challenger",
         "name": "Leg Raises",
         "numReps": 8,
         "numSets": 3,
