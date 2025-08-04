@@ -351,5 +351,18 @@
         "date": "2025-02-02T00:00:00Z",
         "timeElapsed": 0
       }
+    ],
+    "Routine Elliptical": [
+      {
+        "id": "some-uuid-32",
+        "group": "Elliptical",
+        "name": "Elliptical Training",
+        "numReps": 20,
+        "numSets": 1,
+        "weight": 0,
+        "completed": false,
+        "date": "2025-02-02T00:00:00Z",
+        "timeElapsed": 0
+      }
     ]
 }

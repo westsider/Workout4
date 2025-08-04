@@ -18,10 +18,12 @@ struct WorkoutFlowView: View {
     @State private var timeElapsed: Int = 0
     @State private var timer: Timer?
     @State private var stretchCompleted = false
+    @State private var showCardioOption = false
     
     enum WorkoutPhase {
         case stretch
         case mainWorkout
+        case cardio
     }
     
     var body: some View {
@@ -36,12 +38,26 @@ struct WorkoutFlowView: View {
                         }
                     }
                 )
-            } else {
+            } else if currentPhase == .mainWorkout {
                 MainWorkoutView(
                     group: targetGroup,
                     lastWorkoutGroup: $lastWorkoutGroup,
                     initialTimeElapsed: timeElapsed,
-                    stretchCompleted: stretchCompleted
+                    stretchCompleted: stretchCompleted,
+                    onComplete: {
+                        // Check if this is a strength training workout that can have cardio
+                        if isStrengthTrainingGroup(targetGroup) {
+                            showCardioOption = true
+                        } else {
+                            dismiss()
+                        }
+                    }
+                )
+            } else {
+                CardioWorkoutView(
+                    group: targetGroup,
+                    lastWorkoutGroup: $lastWorkoutGroup,
+                    initialTimeElapsed: timeElapsed
                 )
             }
         }
@@ -51,6 +67,23 @@ struct WorkoutFlowView: View {
         .onDisappear {
             stopTimer()
         }
+        .alert("Add Cardio?", isPresented: $showCardioOption) {
+            Button("Skip", role: .cancel) {
+                dismiss()
+            }
+            Button("Add Cardio") {
+                withAnimation {
+                    currentPhase = .cardio
+                }
+            }
+        } message: {
+            Text("Would you like to extend your workout with cardio?")
+        }
+    }
+    
+    private func isStrengthTrainingGroup(_ group: String) -> Bool {
+        let strengthGroups = ["falcon", "deep horizon", "challenger", "trident"]
+        return strengthGroups.contains(group.lowercased())
     }
     
     private func startTimer() {
@@ -139,11 +172,13 @@ struct StretchWorkoutView: View {
             }
         }
         .navigationTitle("Stretch First")
-        .navigationBarItems(trailing: Text(timeString)
-            .font(.headline)
-            .foregroundColor(.blue))
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .primaryAction) {
+                Text(timeString)
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+            ToolbarItem(placement: .cancellationAction) {
                 Button("Skip") {
                     onComplete()
                 }
@@ -157,6 +192,7 @@ struct MainWorkoutView: View {
     @Binding var lastWorkoutGroup: String?
     let initialTimeElapsed: Int
     let stretchCompleted: Bool
+    let onComplete: (() -> Void)?
     
     @Query private var allExercises: [Exercise]
     @Environment(\.modelContext) private var modelContext
@@ -295,9 +331,13 @@ struct MainWorkoutView: View {
             }
         }
         .navigationTitle(group)
-        .navigationBarItems(trailing: Text(timeString)
-            .font(.headline)
-            .foregroundColor(.blue))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Text(timeString)
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+        }
         .onAppear {
             startTimer()
         }
@@ -354,7 +394,12 @@ struct MainWorkoutView: View {
             
             resetCompletedStatus()
             
-            dismiss()
+            // Call completion handler if provided, otherwise dismiss
+            if let onComplete = onComplete {
+                onComplete()
+            } else {
+                dismiss()
+            }
         }
     }
     

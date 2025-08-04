@@ -112,17 +112,24 @@ class HealthKitManager {
         // These are estimates and can be adjusted based on user preferences
         let caloriesPerMinute: Double
         
-        switch group.lowercased() {
-        case "falcon", "deep horizon", "challenger", "trident":
+        let lowercaseGroup = group.lowercased()
+        
+        if lowercaseGroup.contains("cardio") {
+            // Cardio sessions burn more calories
+            caloriesPerMinute = 10.0
+        } else if lowercaseGroup == "elliptical" {
+            // Elliptical training
+            caloriesPerMinute = 9.0
+        } else if ["falcon", "deep horizon", "challenger", "trident"].contains(lowercaseGroup) {
             // High-intensity strength training
             caloriesPerMinute = 8.0
-        case "calisthenics":
+        } else if lowercaseGroup == "calisthenics" {
             // Bodyweight exercises
             caloriesPerMinute = 6.0
-        case "stretch":
+        } else if lowercaseGroup == "stretch" {
             // Light stretching
             caloriesPerMinute = 2.5
-        default:
+        } else {
             // Default moderate intensity
             caloriesPerMinute = 5.0
         }
@@ -131,14 +138,19 @@ class HealthKitManager {
     }
     
     private func workoutActivityType(for group: String) -> HKWorkoutActivityType {
-        switch group.lowercased() {
-        case "falcon", "deep horizon", "challenger", "trident":
+        let lowercaseGroup = group.lowercased()
+        
+        if lowercaseGroup.contains("cardio") {
+            return .mixedCardio
+        } else if lowercaseGroup == "elliptical" {
+            return .elliptical
+        } else if ["falcon", "deep horizon", "challenger", "trident"].contains(lowercaseGroup) {
             return .traditionalStrengthTraining
-        case "calisthenics":
+        } else if lowercaseGroup == "calisthenics" {
             return .functionalStrengthTraining
-        case "stretch":
+        } else if lowercaseGroup == "stretch" {
             return .flexibility
-        default:
+        } else {
             return .other
         }
     }

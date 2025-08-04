@@ -148,9 +148,13 @@ struct WorkoutDetailView: View {
             }
         }
         .navigationTitle(group)
-        .navigationBarItems(trailing: Text(timeString)
-            .font(.headline)
-            .foregroundColor(.blue))
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Text(timeString)
+                    .font(.headline)
+                    .foregroundColor(.blue)
+            }
+        }
         .onAppear {
             startTimer()
         }

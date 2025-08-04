@@ -17,13 +17,16 @@ struct TrainingPlanView: View {
         Dictionary(grouping: exercises, by: { $0.group })
     }
     
-    // Custom sorted groups with "Stretch" and "Calisthenics" at the end
+    // Custom sorted groups with "Elliptical", "Stretch" and "Calisthenics" at the end
     var sortedGroups: [String] {
         let groups = groupedExercises.keys
-        let priorityGroups = groups.filter { $0.lowercased() != "stretch" && $0.lowercased() != "calisthenics" }.sorted()
+        let priorityGroups = groups.filter { 
+            !["stretch", "calisthenics", "elliptical"].contains($0.lowercased()) 
+        }.sorted()
+        let ellipticalGroup = groups.contains { $0.lowercased() == "elliptical" } ? ["Elliptical"] : []
         let stretchGroup = groups.contains { $0.lowercased() == "stretch" } ? ["stretch"] : []
         let calisthenicsGroup = groups.contains { $0.lowercased() == "calisthenics" } ? ["Calisthenics"] : []
-        return priorityGroups + stretchGroup + calisthenicsGroup
+        return priorityGroups + ellipticalGroup + stretchGroup + calisthenicsGroup
     }
     
     var body: some View {
@@ -40,14 +43,29 @@ struct TrainingPlanView: View {
                             : AnyView(WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup))) {
                             HStack {
                                 // Placeholder for the image
-                                Image(group)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 80, height: 80)
-                                    .cornerRadius(7) // Inner corner radius
-                                        .padding(5) // Width of the border
-                                        .background(Color.primary) // Color of the border
-                                        .cornerRadius(10)
+                                Group {
+                                    if group.lowercased() == "elliptical" {
+                                        // Use system image for elliptical if no custom image
+                                        Image(systemName: "figure.ellipse")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.blue)
+                                            .frame(width: 80, height: 80)
+                                            .background(Color.gray.opacity(0.2))
+                                            .cornerRadius(7)
+                                            .padding(5)
+                                            .background(Color.primary)
+                                            .cornerRadius(10)
+                                    } else {
+                                        Image(group)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 80, height: 80)
+                                            .cornerRadius(7) // Inner corner radius
+                                                .padding(5) // Width of the border
+                                                .background(Color.primary) // Color of the border
+                                                .cornerRadius(10)
+                                    }
+                                }
                                 VStack(alignment: .leading) {
                                     Text(group)
                                         .font(.headline)
@@ -109,6 +127,8 @@ struct TrainingPlanView: View {
             return "Just Let It Go"
         case "Calisthenics":
             return "" // No subtitle in the screenshot
+        case "Elliptical":
+            return "Cardio Training"
         default:
             return ""
         }
