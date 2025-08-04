@@ -62,13 +62,14 @@ struct TrainingPlanView: View {
                                             .frame(width: 80, height: 80)
                                             .cornerRadius(7) // Inner corner radius
                                                 .padding(5) // Width of the border
-                                                .background(Color.primary) // Color of the border
+                                                .background(Color(red: 0.28, green: 0.40, blue: 0.25)) // Color of the border
                                                 .cornerRadius(10)
                                     }
                                 }
                                 VStack(alignment: .leading) {
                                     Text(group)
                                         .font(.headline)
+                                        .foregroundColor(Color(red: 0.28, green: 0.40, blue: 0.25))
                                     Text(subtitle(for: group))
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
@@ -84,7 +85,7 @@ struct TrainingPlanView: View {
                                     
                                     // Progress bar
                                     ProgressView(value: lastWorkoutGroup == group ? 1.0 : 0.25)
-                                        .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                                        .progressViewStyle(LinearProgressViewStyle(tint: Color(red: 0.28, green: 0.40, blue: 0.25)))
                                         .frame(height: 5)
                                 }
                                 
@@ -104,7 +105,11 @@ struct TrainingPlanView: View {
                     }
                 }
             }
-            .navigationTitle("Basic Training")
+            .navigationTitle("BASIC TRAINING")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(Color(red: 0.28, green: 0.40, blue: 0.25), for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .onAppear {
                 // Debug: Print the number of exercises fetched
                 print("Fetched \(exercises.count) exercises")
