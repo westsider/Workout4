@@ -34,14 +34,99 @@ struct WorkoutDetailView: View {
         List {
             ForEach(groupedExercises.keys.sorted(), id: \.self) { exerciseName in
                 if let exerciseGroup = groupedExercises[exerciseName] {
-                    Section(header: Text(exerciseName).font(.headline)) {
+                    Section(header: VStack(alignment: .leading, spacing: 8) {
+                        Text(exerciseName)
+                            .font(.headline)
+                        
+                        HStack {
+                            // Weight controls
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    if exerciseGroup[0].weight > 0 {
+                                        exerciseGroup[0].weight -= 5
+                                        saveChanges()
+                                    }
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(exerciseGroup[0].weight > 0 ? .blue : .gray)
+                                }
+                                .disabled(exerciseGroup[0].weight <= 0)
+                                
+                                Text("\(exerciseGroup[0].weight) lbs")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .frame(minWidth: 60)
+                                
+                                Button(action: {
+                                    exerciseGroup[0].weight += 5
+                                    saveChanges()
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            // Sets controls
+                            HStack(spacing: 8) {
+                                Button(action: {
+                                    if exerciseGroup[0].numSets > 1 {
+                                        exerciseGroup[0].numSets -= 1
+                                        saveChanges()
+                                        // Remove completed sets that are beyond the new count
+                                        completedSets = completedSets.filter { setId in
+                                            let components = setId.split(separator: "-")
+                                            if components[0] == exerciseName,
+                                               let setIndex = Int(components[1]),
+                                               setIndex >= exerciseGroup[0].numSets {
+                                                return false
+                                            }
+                                            return true
+                                        }
+                                    }
+                                }) {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(exerciseGroup[0].numSets > 1 ? .blue : .gray)
+                                }
+                                .disabled(exerciseGroup[0].numSets <= 1)
+                                
+                                Text("\(exerciseGroup[0].numSets) sets")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .frame(minWidth: 50)
+                                
+                                Button(action: {
+                                    if exerciseGroup[0].numSets < 4 {
+                                        exerciseGroup[0].numSets += 1
+                                        saveChanges()
+                                    }
+                                }) {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(exerciseGroup[0].numSets < 4 ? .blue : .gray)
+                                }
+                                .disabled(exerciseGroup[0].numSets >= 4)
+                            }
+                        }
+                    }) {
                         ForEach(0..<exerciseGroup[0].numSets, id: \.self) { set in
                             let setId = "\(exerciseName)-\(set)"
                             HStack {
-                                Text("\(exerciseGroup[0].weight) lbs")
+                                Text("Set \(set + 1)")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .frame(width: 50, alignment: .leading)
+                                
                                 Spacer()
-                                Text("\(exerciseGroup[0].numReps) Reps")
+                                
+                                // Reps display
+                                Text("\(exerciseGroup[0].numReps) reps")
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                
                                 Spacer()
+                                
+                                // Completion button
                                 Button(action: {
                                     // Toggle set completion
                                     if completedSets.contains(setId) {
@@ -51,10 +136,12 @@ struct WorkoutDetailView: View {
                                     }
                                     checkCompletion()
                                 }) {
-                                    Image(systemName: completedSets.contains(setId) ? "star.fill" : "star")
-                                        .foregroundColor(completedSets.contains(setId) ? .blue : .gray)
+                                    Image(systemName: completedSets.contains(setId) ? "checkmark.circle.fill" : "circle")
+                                        .foregroundColor(completedSets.contains(setId) ? .green : .gray)
+                                        .font(.title2)
                                 }
                             }
+                            .padding(.vertical, 8)
                         }
                     }
                 }
@@ -139,6 +226,14 @@ struct WorkoutDetailView: View {
             try modelContext.save()
         } catch {
             print("Error saving context after resetting completed status: \(error)")
+        }
+    }
+    
+    private func saveChanges() {
+        do {
+            try modelContext.save()
+        } catch {
+            print("Error saving changes: \(error)")
         }
     }
 }
