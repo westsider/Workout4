@@ -10,6 +10,7 @@ import SwiftUI
 
 struct TrainingPlanView: View {
     @Query private var exercises: [Exercise]
+    @Query(sort: \WorkoutHistory.date, order: .reverse) private var workoutHistory: [WorkoutHistory]
     @Binding var lastWorkoutGroup: String?
     
     var groupedExercises: [String: [Exercise]] {
@@ -51,9 +52,15 @@ struct TrainingPlanView: View {
                                     Text(subtitle(for: group))
                                         .font(.subheadline)
                                         .foregroundColor(.gray)
-                                    Text(formattedDate(for: group))
-                                        .font(.caption)
-                                        .foregroundColor(.gray)
+                                    if let lastWorkout = lastWorkoutDate(for: group) {
+                                        Text(lastWorkout)
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    } else {
+                                        Text("Not started")
+                                            .font(.caption)
+                                            .foregroundColor(.gray)
+                                    }
                                     
                                     // Progress bar
                                     ProgressView(value: lastWorkoutGroup == group ? 1.0 : 0.25)
@@ -63,9 +70,15 @@ struct TrainingPlanView: View {
                                 
                                 Spacer()
                                 
-                                Text("00:00")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
+                                if let duration = lastWorkoutDuration(for: group) {
+                                    Text(duration)
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                } else {
+                                    Text("00:00")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
                             }
                         }
                     }
@@ -99,10 +112,21 @@ struct TrainingPlanView: View {
         }
     }
     
-    private func formattedDate(for group: String) -> String {
-        if group.lowercased() == "stretch" {
-            return "Apr 9, 2025 10:09AM"
+    private func lastWorkoutDate(for group: String) -> String? {
+        if let workout = workoutHistory.first(where: { $0.group == group }) {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d, yyyy h:mma"
+            return formatter.string(from: workout.date)
         }
-        return "Feb 1, 2023 10:31PM"
+        return nil
+    }
+    
+    private func lastWorkoutDuration(for group: String) -> String? {
+        if let workout = workoutHistory.first(where: { $0.group == group }) {
+            let minutes = workout.timeElapsed / 60
+            let seconds = workout.timeElapsed % 60
+            return String(format: "%02d:%02d", minutes, seconds)
+        }
+        return nil
     }
 }

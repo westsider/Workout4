@@ -18,6 +18,7 @@ struct WorkoutDetailView: View {
     @State private var timer: Timer?
     @State private var timeElapsed: Int = 0
     @State private var allCompleted: Bool = false
+    @State private var completedSets: Set<String> = []
     
     // Filter exercises for the current group
     var exercises: [Exercise] {
@@ -35,18 +36,23 @@ struct WorkoutDetailView: View {
                 if let exerciseGroup = groupedExercises[exerciseName] {
                     Section(header: Text(exerciseName).font(.headline)) {
                         ForEach(0..<exerciseGroup[0].numSets, id: \.self) { set in
+                            let setId = "\(exerciseName)-\(set)"
                             HStack {
                                 Text("\(exerciseGroup[0].weight) lbs")
                                 Spacer()
                                 Text("\(exerciseGroup[0].numReps) Reps")
                                 Spacer()
                                 Button(action: {
-                                    // Mark the set as completed
-                                    exerciseGroup[0].completed = true
+                                    // Toggle set completion
+                                    if completedSets.contains(setId) {
+                                        completedSets.remove(setId)
+                                    } else {
+                                        completedSets.insert(setId)
+                                    }
                                     checkCompletion()
                                 }) {
-                                    Image(systemName: exerciseGroup[0].completed ? "star.fill" : "star")
-                                        .foregroundColor(exerciseGroup[0].completed ? .blue : .gray)
+                                    Image(systemName: completedSets.contains(setId) ? "star.fill" : "star")
+                                        .foregroundColor(completedSets.contains(setId) ? .blue : .gray)
                                 }
                             }
                         }
@@ -55,6 +61,9 @@ struct WorkoutDetailView: View {
             }
         }
         .navigationTitle(group)
+        .navigationBarItems(trailing: Text(timeString)
+            .font(.headline)
+            .foregroundColor(.blue))
         .onAppear {
             startTimer()
         }
@@ -62,7 +71,14 @@ struct WorkoutDetailView: View {
             stopTimer()
             // Reset completed status when leaving the view
             resetCompletedStatus()
+            completedSets.removeAll()
         }
+    }
+    
+    private var timeString: String {
+        let minutes = timeElapsed / 60
+        let seconds = timeElapsed % 60
+        return String(format: "%02d:%02d", minutes, seconds)
     }
     
     private func startTimer() {
@@ -77,8 +93,16 @@ struct WorkoutDetailView: View {
     }
     
     private func checkCompletion() {
-        // Check if all exercises in this group are completed
-        allCompleted = exercises.allSatisfy { $0.completed }
+        // Calculate total sets needed
+        var totalSetsNeeded = 0
+        for (_, exerciseGroup) in groupedExercises {
+            if let first = exerciseGroup.first {
+                totalSetsNeeded += first.numSets
+            }
+        }
+        
+        // Check if all sets are completed
+        allCompleted = completedSets.count == totalSetsNeeded
         if allCompleted {
             stopTimer()
             
