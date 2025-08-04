@@ -343,6 +343,15 @@ struct MainWorkoutView: View {
             )
             modelContext.insert(history)
             
+            // Save to HealthKit
+            HealthKitManager.shared.saveWorkout(group: group, timeElapsed: totalTime) { success in
+                if success {
+                    print("Workout saved to HealthKit")
+                } else {
+                    print("Failed to save workout to HealthKit")
+                }
+            }
+            
             resetCompletedStatus()
             
             dismiss()

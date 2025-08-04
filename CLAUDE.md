@@ -76,3 +76,19 @@ Workout group images are stored in Assets.xcassets with matching names:
 ### Entitlements
 - App Sandbox enabled
 - Read-only file access for user-selected files
+
+### HealthKit Configuration
+To enable HealthKit functionality:
+1. In Xcode, select the project and go to Signing & Capabilities
+2. Add HealthKit capability
+3. Add the following keys to Info.plist (or in project settings):
+   - `NSHealthShareUsageDescription`: "This app saves your workout data to Apple Health to track your fitness progress."
+   - `NSHealthUpdateUsageDescription`: "This app saves your workout sessions and calories burned to Apple Health."
+
+### HealthKit Implementation
+- Workouts are saved with appropriate activity types (strength training, flexibility, etc.)
+- Calorie calculations based on workout intensity:
+  - Strength workouts: 8 cal/min
+  - Calisthenics: 6 cal/min  
+  - Stretching: 2.5 cal/min
+- Uses HKWorkoutBuilder for iOS 17+ compatibility

@@ -35,6 +35,18 @@ struct MainView: View {
             
             // Load exercises from the JSON file
             loadInitialData()
+            
+            // Request HealthKit authorization
+            // Delay the request to avoid immediate crash if Info.plist not configured
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                HealthKitManager.shared.requestAuthorization { authorized in
+                    if authorized {
+                        print("HealthKit authorization granted")
+                    } else {
+                        print("HealthKit authorization denied or not available")
+                    }
+                }
+            }
         }
     }
     

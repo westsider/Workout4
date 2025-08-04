@@ -197,15 +197,23 @@ struct WorkoutDetailView: View {
             lastWorkoutGroup = group
             UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
             
-            // Record in history (except for "stretch")
-            if group.lowercased() != "stretch" {
-                let history = WorkoutHistory(
-                    id: UUID().uuidString,
-                    group: group,
-                    date: Date(),
-                    timeElapsed: timeElapsed + 240 // 4 minute stretch
-                )
-                modelContext.insert(history)
+            // Record in history
+            let finalTime = group.lowercased() == "stretch" ? timeElapsed : timeElapsed + 240
+            let history = WorkoutHistory(
+                id: UUID().uuidString,
+                group: group,
+                date: Date(),
+                timeElapsed: finalTime
+            )
+            modelContext.insert(history)
+            
+            // Save to HealthKit
+            HealthKitManager.shared.saveWorkout(group: group, timeElapsed: finalTime) { success in
+                if success {
+                    print("Workout saved to HealthKit")
+                } else {
+                    print("Failed to save workout to HealthKit")
+                }
             }
             
             // Reset completed status before dismissing
