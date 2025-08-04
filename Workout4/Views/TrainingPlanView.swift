@@ -35,7 +35,9 @@ struct TrainingPlanView: View {
                         .foregroundColor(.gray)
                 } else {
                     ForEach(sortedGroups, id: \.self) { group in
-                        NavigationLink(destination: WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup)) {
+                        NavigationLink(destination: group.lowercased() == "stretch" 
+                            ? AnyView(WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup))
+                            : AnyView(WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup))) {
                             HStack {
                                 // Placeholder for the image
                                 Image(group)
