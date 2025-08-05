@@ -12,6 +12,7 @@ struct CardioWorkoutView: View {
     let group: String
     @Binding var lastWorkoutGroup: String?
     let initialTimeElapsed: Int
+    let onComplete: ((Int) -> Void)?  // Callback with total time elapsed
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
@@ -93,35 +94,17 @@ struct CardioWorkoutView: View {
     private func endWorkout() {
         stopTimer()
         
-        // Update last workout group
-        lastWorkoutGroup = group
-        UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
-        
-        // Save to history
-        print("CardioWorkoutView - Saving workout: \(group) + Cardio, time: \(totalTimeElapsed)s (\(totalTimeElapsed/60)m)")
-        let history = WorkoutHistory(
-            id: UUID().uuidString,
-            group: "\(group) + Cardio",
-            date: Date(),
-            timeElapsed: totalTimeElapsed
-        )
-        modelContext.insert(history)
-        
-        // Save to HealthKit
-        print("CardioWorkoutView - Saving to HealthKit: \(group) + Cardio, time: \(totalTimeElapsed)s")
-        HealthKitManager.shared.saveWorkout(group: "\(group) + Cardio", timeElapsed: totalTimeElapsed) { success in
-            if success {
-                print("Cardio workout saved to HealthKit")
-            } else {
-                print("Failed to save cardio workout to HealthKit")
-            }
+        // Call the completion handler with total time
+        if let onComplete = onComplete {
+            onComplete(totalTimeElapsed)
+        } else {
+            // Fallback for preview/testing
+            dismiss()
         }
-        
-        dismiss()
     }
 }
 
 #Preview {
-    CardioWorkoutView(group: "Falcon", lastWorkoutGroup: .constant(nil), initialTimeElapsed: 600)
+    CardioWorkoutView(group: "Falcon", lastWorkoutGroup: .constant(nil), initialTimeElapsed: 600, onComplete: nil)
         .modelContainer(for: [Exercise.self, WorkoutHistory.self], inMemory: true)
 }

@@ -44,6 +44,7 @@ struct WorkoutFlowView: View {
                     lastWorkoutGroup: $lastWorkoutGroup,
                     initialTimeElapsed: timeElapsed,
                     stretchCompleted: stretchCompleted,
+                    shouldSaveWorkout: !isStrengthTrainingGroup(targetGroup),  // Only save if no cardio option
                     onComplete: {
                         // Check if this is a strength training workout that can have cardio
                         if isStrengthTrainingGroup(targetGroup) {
@@ -57,7 +58,10 @@ struct WorkoutFlowView: View {
                 CardioWorkoutView(
                     group: targetGroup,
                     lastWorkoutGroup: $lastWorkoutGroup,
-                    initialTimeElapsed: timeElapsed
+                    initialTimeElapsed: timeElapsed,
+                    onComplete: { finalTime in
+                        saveWorkoutAndDismiss(group: targetGroup, timeElapsed: finalTime, withCardio: true)
+                    }
                 )
             }
         }
@@ -69,7 +73,8 @@ struct WorkoutFlowView: View {
         }
         .alert("Add Cardio?", isPresented: $showCardioOption) {
             Button("Skip", role: .cancel) {
-                dismiss()
+                // Save workout without cardio
+                saveWorkoutAndDismiss(group: targetGroup, timeElapsed: timeElapsed, withCardio: false)
             }
             Button("Add Cardio") {
                 withAnimation {
@@ -95,6 +100,33 @@ struct WorkoutFlowView: View {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+    
+    private func saveWorkoutAndDismiss(group: String, timeElapsed: Int, withCardio: Bool) {
+        lastWorkoutGroup = group
+        UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
+        
+        let workoutName = withCardio ? "\(group) + Cardio" : group
+        let history = WorkoutHistory(
+            id: UUID().uuidString,
+            group: workoutName,
+            date: Date(),
+            timeElapsed: timeElapsed
+        )
+        print("WorkoutFlowView - Saving workout: \(workoutName), time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
+        modelContext.insert(history)
+        
+        // Save to HealthKit
+        print("WorkoutFlowView - Saving to HealthKit: \(workoutName), time: \(timeElapsed) seconds")
+        HealthKitManager.shared.saveWorkout(group: workoutName, timeElapsed: timeElapsed) { success in
+            if success {
+                print("Workout saved to HealthKit successfully")
+            } else {
+                print("Failed to save workout to HealthKit")
+            }
+        }
+        
+        dismiss()
     }
 }
 
@@ -192,6 +224,7 @@ struct MainWorkoutView: View {
     @Binding var lastWorkoutGroup: String?
     let initialTimeElapsed: Int
     let stretchCompleted: Bool
+    var shouldSaveWorkout: Bool = true  // Flag to control if this view should save
     let onComplete: (() -> Void)?
     
     @Query private var allExercises: [Exercise]
@@ -351,25 +384,28 @@ struct MainWorkoutView: View {
         
         let allCompleted = completedSets.count == totalSetsNeeded
         if allCompleted {
-            lastWorkoutGroup = group
-            UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
-            
-            let history = WorkoutHistory(
-                id: UUID().uuidString,
-                group: group,
-                date: Date(),
-                timeElapsed: initialTimeElapsed
-            )
-            print("WorkoutFlowView - Saving workout: \(group), time: \(initialTimeElapsed) seconds (\(initialTimeElapsed/60) minutes)")
-            modelContext.insert(history)
-            
-            // Save to HealthKit
-            print("WorkoutFlowView - Saving to HealthKit: \(group), time: \(initialTimeElapsed) seconds")
-            HealthKitManager.shared.saveWorkout(group: group, timeElapsed: initialTimeElapsed) { success in
-                if success {
-                    print("Workout saved to HealthKit successfully")
-                } else {
-                    print("Failed to save workout to HealthKit")
+            // Only save if we should (i.e., no cardio option will be presented)
+            if shouldSaveWorkout {
+                lastWorkoutGroup = group
+                UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
+                
+                let history = WorkoutHistory(
+                    id: UUID().uuidString,
+                    group: group,
+                    date: Date(),
+                    timeElapsed: initialTimeElapsed
+                )
+                print("WorkoutFlowView - Saving workout: \(group), time: \(initialTimeElapsed) seconds (\(initialTimeElapsed/60) minutes)")
+                modelContext.insert(history)
+                
+                // Save to HealthKit
+                print("WorkoutFlowView - Saving to HealthKit: \(group), time: \(initialTimeElapsed) seconds")
+                HealthKitManager.shared.saveWorkout(group: group, timeElapsed: initialTimeElapsed) { success in
+                    if success {
+                        print("Workout saved to HealthKit successfully")
+                    } else {
+                        print("Failed to save workout to HealthKit")
+                    }
                 }
             }
             
