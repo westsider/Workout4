@@ -198,8 +198,6 @@ struct MainWorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var timer: Timer?
-    @State private var timeElapsed: Int = 0
     @State private var completedSets: Set<String> = []
     
     var exercises: [Exercise] {
@@ -211,9 +209,8 @@ struct MainWorkoutView: View {
     }
     
     var timeString: String {
-        let totalTime = initialTimeElapsed + timeElapsed
-        let minutes = totalTime / 60
-        let seconds = totalTime % 60
+        let minutes = initialTimeElapsed / 60
+        let seconds = initialTimeElapsed % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
@@ -338,25 +335,10 @@ struct MainWorkoutView: View {
                     .foregroundColor(.blue)
             }
         }
-        .onAppear {
-            startTimer()
-        }
         .onDisappear {
-            stopTimer()
             resetCompletedStatus()
             completedSets.removeAll()
         }
-    }
-    
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            timeElapsed += 1
-        }
-    }
-    
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
     }
     
     private func checkCompletion() {
@@ -369,24 +351,23 @@ struct MainWorkoutView: View {
         
         let allCompleted = completedSets.count == totalSetsNeeded
         if allCompleted {
-            stopTimer()
-            
             lastWorkoutGroup = group
             UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
             
-            let totalTime = initialTimeElapsed + timeElapsed
             let history = WorkoutHistory(
                 id: UUID().uuidString,
                 group: group,
                 date: Date(),
-                timeElapsed: totalTime
+                timeElapsed: initialTimeElapsed
             )
+            print("WorkoutFlowView - Saving workout: \(group), time: \(initialTimeElapsed) seconds (\(initialTimeElapsed/60) minutes)")
             modelContext.insert(history)
             
             // Save to HealthKit
-            HealthKitManager.shared.saveWorkout(group: group, timeElapsed: totalTime) { success in
+            print("WorkoutFlowView - Saving to HealthKit: \(group), time: \(initialTimeElapsed) seconds")
+            HealthKitManager.shared.saveWorkout(group: group, timeElapsed: initialTimeElapsed) { success in
                 if success {
-                    print("Workout saved to HealthKit")
+                    print("Workout saved to HealthKit successfully")
                 } else {
                     print("Failed to save workout to HealthKit")
                 }

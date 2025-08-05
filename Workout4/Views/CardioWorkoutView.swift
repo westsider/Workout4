@@ -98,6 +98,7 @@ struct CardioWorkoutView: View {
         UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
         
         // Save to history
+        print("CardioWorkoutView - Saving workout: \(group) + Cardio, time: \(totalTimeElapsed)s (\(totalTimeElapsed/60)m)")
         let history = WorkoutHistory(
             id: UUID().uuidString,
             group: "\(group) + Cardio",
@@ -107,6 +108,7 @@ struct CardioWorkoutView: View {
         modelContext.insert(history)
         
         // Save to HealthKit
+        print("CardioWorkoutView - Saving to HealthKit: \(group) + Cardio, time: \(totalTimeElapsed)s")
         HealthKitManager.shared.saveWorkout(group: "\(group) + Cardio", timeElapsed: totalTimeElapsed) { success in
             if success {
                 print("Cardio workout saved to HealthKit")

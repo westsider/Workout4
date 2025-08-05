@@ -254,7 +254,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Workout;
+				INFOPLIST_KEY_CFBundleDisplayName = "Basic Training";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Please allow Basic Training to send workout details to the Health app.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Please allow Basic Training to access you health app.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -298,7 +299,8 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Workout;
+				INFOPLIST_KEY_CFBundleDisplayName = "Basic Training";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "Please allow Basic Training to send workout details to the Health app.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "Please allow Basic Training to access you health app.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;

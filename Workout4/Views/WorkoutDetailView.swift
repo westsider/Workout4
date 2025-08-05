@@ -203,6 +203,7 @@ struct WorkoutDetailView: View {
             
             // Record in history
             let finalTime = group.lowercased() == "stretch" ? timeElapsed : timeElapsed + 240
+            print("WorkoutDetailView - Saving workout: \(group), raw time: \(timeElapsed)s, final time: \(finalTime)s (\(finalTime/60)m)")
             let history = WorkoutHistory(
                 id: UUID().uuidString,
                 group: group,
@@ -212,9 +213,10 @@ struct WorkoutDetailView: View {
             modelContext.insert(history)
             
             // Save to HealthKit
+            print("WorkoutDetailView - Saving to HealthKit: \(group), time: \(finalTime)s")
             HealthKitManager.shared.saveWorkout(group: group, timeElapsed: finalTime) { success in
                 if success {
-                    print("Workout saved to HealthKit")
+                    print("Workout saved to HealthKit successfully")
                 } else {
                     print("Failed to save workout to HealthKit")
                 }
