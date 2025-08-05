@@ -131,7 +131,7 @@ struct TrainingPlanView: View {
         case "stretch":
             return "Just Let It Go"
         case "Calisthenics":
-            return "" // No subtitle in the screenshot
+            return "Get Some on the Road" // No subtitle in the screenshot
         case "Elliptical":
             return "Cardio Training"
         default:
