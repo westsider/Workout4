@@ -24,7 +24,7 @@ struct TrainingPlanView: View {
             !["stretch", "calisthenics", "elliptical"].contains($0.lowercased()) 
         }.sorted()
         let ellipticalGroup = groups.contains { $0.lowercased() == "elliptical" } ? ["Elliptical"] : []
-        let stretchGroup = groups.contains { $0.lowercased() == "stretch" } ? ["stretch"] : []
+        let stretchGroup = groups.contains { $0.lowercased() == "stretch" } ? ["Stretch"] : []
         let calisthenicsGroup = groups.contains { $0.lowercased() == "calisthenics" } ? ["Calisthenics"] : []
         return priorityGroups + ellipticalGroup + stretchGroup + calisthenicsGroup
     }
@@ -128,7 +128,7 @@ struct TrainingPlanView: View {
             return "Failure Is Not An Option"
         case "Trident":
             return "Only Easy Day Was Yesterday"
-        case "stretch":
+        case "stretch", "Stretch":
             return "Just Let It Go"
         case "Calisthenics":
             return "Get Some on the Road" // No subtitle in the screenshot
@@ -156,4 +156,25 @@ struct TrainingPlanView: View {
         }
         return nil
     }
+}
+
+#Preview {
+    let container = try! ModelContainer(for: Exercise.self, WorkoutHistory.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    
+    // Add sample data
+    let sampleExercises = [
+        Exercise(id: "1", group: "Falcon", name: "Push Ups", numReps: 10, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "2", group: "Falcon", name: "Pull Ups", numReps: 8, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "3", group: "Deep Horizon", name: "Squats", numReps: 15, numSets: 3, weight: 20, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "4", group: "Challenger", name: "Burpees", numReps: 10, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "5", group: "Stretch", name: "Hamstring Stretch", numReps: 30, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "6", group: "Calisthenics", name: "Jumping Jacks", numReps: 20, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0)
+    ]
+    
+    for exercise in sampleExercises {
+        container.mainContext.insert(exercise)
+    }
+    
+    return TrainingPlanView(lastWorkoutGroup: .constant("Falcon"))
+        .modelContainer(container)
 }
