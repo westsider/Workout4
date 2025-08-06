@@ -20,6 +20,7 @@ struct WorkoutFlowView: View {
     @State private var stretchCompleted = false
     @State private var showCardioOption = false
     @State private var strengthWorkoutTime: Int = 0
+    @State private var startTime: Date = Date()
     
     enum WorkoutPhase {
         case stretch
@@ -76,6 +77,9 @@ struct WorkoutFlowView: View {
         .onDisappear {
             stopTimer()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            updateTimeFromBackground()
+        }
         .alert("Add Cardio?", isPresented: $showCardioOption) {
             Button("Skip", role: .cancel) {
                 // Save workout without cardio
@@ -97,13 +101,23 @@ struct WorkoutFlowView: View {
     }
     
     private func startTimer() {
-        print("WorkoutFlowView - Starting timer")
+        startTime = Date()
+        print("WorkoutFlowView - Starting timer at \(startTime)")
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            timeElapsed += 1
+            updateTimeElapsed()
             if timeElapsed % 30 == 0 {  // Log every 30 seconds
                 print("WorkoutFlowView - Timer: \(timeElapsed) seconds (\(timeElapsed/60) min \(timeElapsed%60) sec)")
             }
         }
+    }
+    
+    private func updateTimeElapsed() {
+        timeElapsed = Int(Date().timeIntervalSince(startTime))
+    }
+    
+    private func updateTimeFromBackground() {
+        print("WorkoutFlowView - Updating time from background")
+        updateTimeElapsed()
     }
     
     private func stopTimer() {

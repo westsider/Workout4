@@ -19,6 +19,7 @@ struct WorkoutDetailView: View {
     @State private var timeElapsed: Int = 0
     @State private var allCompleted: Bool = false
     @State private var completedSets: Set<String> = []
+    @State private var startTime: Date = Date()
     
     // Filter exercises for the current group
     var exercises: [Exercise] {
@@ -165,6 +166,9 @@ struct WorkoutDetailView: View {
             resetCompletedStatus()
             completedSets.removeAll()
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            updateTimeFromBackground()
+        }
     }
     
     private var timeString: String {
@@ -174,9 +178,18 @@ struct WorkoutDetailView: View {
     }
     
     private func startTimer() {
+        startTime = Date()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            timeElapsed += 1
+            updateTimeElapsed()
         }
+    }
+    
+    private func updateTimeElapsed() {
+        timeElapsed = Int(Date().timeIntervalSince(startTime))
+    }
+    
+    private func updateTimeFromBackground() {
+        updateTimeElapsed()
     }
     
     private func stopTimer() {
