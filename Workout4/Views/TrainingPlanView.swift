@@ -20,8 +20,8 @@ struct TrainingPlanView: View {
     // Custom sorted groups with "Elliptical", "Stretch" and "Calisthenics" at the end
     var sortedGroups: [String] {
         let groups = groupedExercises.keys
-        let priorityGroups = groups.filter { 
-            !["stretch", "calisthenics", "elliptical"].contains($0.lowercased()) 
+        let priorityGroups = groups.filter {
+            !["stretch", "calisthenics", "elliptical"].contains($0.lowercased())
         }.sorted()
         let ellipticalGroup = groups.contains { $0.lowercased() == "elliptical" } ? ["Elliptical"] : []
         let stretchGroup = groups.contains { $0.lowercased() == "stretch" } ? ["Stretch"] : []
@@ -38,33 +38,20 @@ struct TrainingPlanView: View {
                         .foregroundColor(.gray)
                 } else {
                     ForEach(sortedGroups, id: \.self) { group in
-                        NavigationLink(destination: group.lowercased() == "stretch" 
-                            ? AnyView(WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup))
-                            : AnyView(WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup))) {
+                        NavigationLink(destination: group.lowercased() == "stretch"
+                                       ? AnyView(WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup))
+                                       : AnyView(WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup))) {
                             HStack {
                                 // Placeholder for the image
                                 Group {
-                                    if group.lowercased() == "elliptical" {
-                                        // Use system image for elliptical if no custom image
-                                        Image(systemName: "figure.ellipse")
-                                            .font(.system(size: 40))
-                                            .foregroundColor(.blue)
-                                            .frame(width: 80, height: 80)
-                                            .background(Color.gray.opacity(0.2))
-                                            .cornerRadius(7)
-                                            .padding(5)
-                                            .background(Color.primary)
-                                            .cornerRadius(10)
-                                    } else {
-                                        Image(group)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 80, height: 80)
-                                            .cornerRadius(7) // Inner corner radius
-                                                .padding(5) // Width of the border
-                                                .background(Color(red: 0.28, green: 0.40, blue: 0.25)) // Color of the border
-                                                .cornerRadius(10)
-                                    }
+                                    Image(group)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 80, height: 80)
+                                        .cornerRadius(7) // Inner corner radius
+                                        .padding(5) // Width of the border
+                                        .background(Color(red: 0.28, green: 0.40, blue: 0.25)) // Color of the border
+                                        .cornerRadius(10)
                                 }
                                 VStack(alignment: .leading) {
                                     Text(group)
