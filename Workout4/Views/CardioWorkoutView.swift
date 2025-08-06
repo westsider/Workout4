@@ -32,20 +32,25 @@ struct CardioWorkoutView: View {
     }
     
     var body: some View {
-        VStack(spacing: 40) {
-            Text("Cardio")
+        VStack(spacing: 16) {
+            Text("CARDIO")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-            
+                .foregroundColor(.armyGreen)
+                
+
             Text(timeString)
                 .font(.system(size: 60, weight: .thin, design: .monospaced))
-                .foregroundColor(.blue)
+                .foregroundColor(.armyGreen)
             
-            Text("Keep going! 💪")
-                .font(.title2)
-                .foregroundColor(.secondary)
-            
-            Spacer()
+            Image("Elliptical")
+                .resizable()
+                .scaledToFill()
+                .frame(width: 300, height: 300)
+                .cornerRadius(7) // Inner corner radius
+                .padding(5) // Width of the border
+                .background(Color.armyGreen) // Color of the border
+                .cornerRadius(10)
             
             Button(action: {
                 showEndWorkoutConfirmation = true
@@ -60,6 +65,7 @@ struct CardioWorkoutView: View {
                     .cornerRadius(12)
             }
             .padding(.horizontal)
+            Spacer()
         }
         .padding()
         .navigationTitle("Cardio Session")
