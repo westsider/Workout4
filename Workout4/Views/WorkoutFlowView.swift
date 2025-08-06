@@ -155,7 +155,7 @@ struct StretchWorkoutView: View {
     @Binding var timeElapsed: Int
     let onComplete: () -> Void
     
-    @State private var completedSets: Set<String> = []
+    @State private var completedExercises: Set<String> = []
     
     var stretchExercises: [Exercise] {
         allExercises.filter { $0.group.lowercased() == "stretch" }
@@ -165,14 +165,12 @@ struct StretchWorkoutView: View {
         Dictionary(grouping: stretchExercises, by: { $0.name })
     }
     
-    var allSetsCompleted: Bool {
-        var totalSetsNeeded = 0
-        for (_, exerciseGroup) in groupedExercises {
-            if let first = exerciseGroup.first {
-                totalSetsNeeded += first.numSets
-            }
-        }
-        return completedSets.count == totalSetsNeeded && totalSetsNeeded > 0
+    var sortedExerciseNames: [String] {
+        groupedExercises.keys.sorted()
+    }
+    
+    var allExercisesCompleted: Bool {
+        completedExercises.count == groupedExercises.count && !groupedExercises.isEmpty
     }
     
     var timeString: String {
@@ -182,56 +180,89 @@ struct StretchWorkoutView: View {
     }
     
     var body: some View {
-        List {
-            Section(header: Text("Complete stretches before workout").font(.headline)) {
-                ForEach(groupedExercises.keys.sorted(), id: \.self) { exerciseName in
-                    if let exerciseGroup = groupedExercises[exerciseName] {
-                        ForEach(0..<exerciseGroup[0].numSets, id: \.self) { set in
-                            let setId = "\(exerciseName)-\(set)"
-                            HStack {
-                                Text(exerciseName)
-                                    .font(.body)
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header section
+                VStack(spacing: 8) {
+                    Text("COMPLETE STRETCHES")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .fontWeight(.medium)
+                    Text("BEFORE WORKOUT")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .fontWeight(.medium)
+                }
+                .padding(.top, 16)
+                .padding(.bottom, 24)
+                
+                // Exercise list
+                List {
+                    ForEach(sortedExerciseNames, id: \.self) { exerciseName in
+                        if let exerciseGroup = groupedExercises[exerciseName] {
+                            let isCompleted = completedExercises.contains(exerciseName)
+                            
+                            HStack(spacing: 16) {
+                                // Exercise icon
+                                Image("yogapose2")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 40, height: 40)
+                                    .foregroundColor(isCompleted ? .white : .primary)
+                                    .padding(5)
+                                    .frame(width: 50, height: 50)
+                                    .background(isCompleted ? Color.mint : Color.clear)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
                                 
-                                Spacer()
-                                
-                                Text("\(exerciseGroup[0].numReps) reps")
-                                    .font(.body)
-                                    .foregroundColor(.secondary)
-                                
-                                Spacer()
-                                
-                                Button(action: {
-                                    if completedSets.contains(setId) {
-                                        completedSets.remove(setId)
-                                    } else {
-                                        completedSets.insert(setId)
-                                    }
+                                // Exercise details
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(exerciseName)
+                                        .font(.headline)
+                                        .foregroundColor(isCompleted ? .white : .primary)
                                     
-                                    if allSetsCompleted {
-                                        onComplete()
-                                    }
-                                }) {
-                                    Image(systemName: completedSets.contains(setId) ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(completedSets.contains(setId) ? .green : .gray)
-                                        .font(.title2)
+                                    Text("\(exerciseGroup[0].numReps) reps")
+                                        .font(.subheadline)
+                                        .foregroundColor(isCompleted ? .white.opacity(0.8) : .secondary)
                                 }
+                                
+                                Spacer()
                             }
                             .padding(.vertical, 8)
+                            .padding(.horizontal, 16)
+                            .background(isCompleted ? Color.mint : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    if isCompleted {
+                                        completedExercises.remove(exerciseName)
+                                    } else {
+                                        completedExercises.insert(exerciseName)
+                                    }
+                                    
+                                    if allExercisesCompleted {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                            onComplete()
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
             }
-        }
-        .navigationTitle("Stretch First")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Text(timeString)
-                    .font(.headline)
-                    .foregroundColor(.blue)
-            }
-            ToolbarItem(placement: .cancellationAction) {
-                Button("Skip") {
-                    onComplete()
+            .navigationTitle("Stretch First")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Text(timeString)
+                        .font(.headline)
+                        .foregroundColor(.blue)
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Skip") {
+                        onComplete()
+                    }
                 }
             }
         }
