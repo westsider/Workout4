@@ -9,4 +9,5 @@ import SwiftUI
 
 extension Color {
     static let armyGreen = Color(red: 0.28, green: 0.40, blue: 0.25)
+    static let armyGreenLight = Color.armyGreen.opacity(0.5)
 }

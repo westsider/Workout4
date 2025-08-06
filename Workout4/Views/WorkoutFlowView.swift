@@ -210,7 +210,7 @@ struct StretchWorkoutView: View {
                                     .foregroundColor(isCompleted ? .white : .primary)
                                     .padding(5)
                                     .frame(width: 50, height: 50)
-                                    .background(isCompleted ? Color.armyGreen.opacity(0.5) : Color.clear)
+                                    .background(isCompleted ? Color.armyGreenLight : Color.clear)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 
                                 // Exercise details
@@ -228,7 +228,7 @@ struct StretchWorkoutView: View {
                             }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 16)
-                            .background(isCompleted ? Color.armyGreen.opacity(0.5) : Color.clear)
+                            .background(isCompleted ? Color.armyGreenLight : Color.clear)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -307,6 +307,7 @@ struct MainWorkoutView: View {
                     Section(header: VStack(alignment: .leading, spacing: 8) {
                         Text(exerciseName)
                             .font(.headline)
+                            .foregroundColor(.armyGreen)
                         
                         HStack {
                             // Weight controls
@@ -318,7 +319,7 @@ struct MainWorkoutView: View {
                                     }
                                 }) {
                                     Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].weight > 0 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].weight > 0 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].weight <= 0)
                                 
@@ -332,7 +333,7 @@ struct MainWorkoutView: View {
                                     saveChanges()
                                 }) {
                                     Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(.armyGreen)
                                 }
                             }
                             
@@ -356,7 +357,7 @@ struct MainWorkoutView: View {
                                     }
                                 }) {
                                     Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].numSets > 1 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].numSets > 1 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].numSets <= 1)
                                 
@@ -372,7 +373,7 @@ struct MainWorkoutView: View {
                                     }
                                 }) {
                                     Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].numSets < 4 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].numSets < 4 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].numSets >= 4)
                             }
@@ -380,45 +381,52 @@ struct MainWorkoutView: View {
                     }) {
                         ForEach(0..<exerciseGroup[0].numSets, id: \.self) { set in
                             let setId = "\(exerciseName)-\(set)"
+                            let isCompleted = completedSets.contains(setId)
+                            
                             HStack {
                                 Text("Set \(set + 1)")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isCompleted ? .white : .secondary)
                                     .frame(width: 50, alignment: .leading)
                                 
                                 Spacer()
                                 
                                 Text("\(exerciseGroup[0].numReps) reps")
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(isCompleted ? .white : .primary)
                                 
                                 Spacer()
-                                
-                                Button(action: {
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .background(isCompleted ? Color.armyGreenLight : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
                                     if completedSets.contains(setId) {
                                         completedSets.remove(setId)
                                     } else {
                                         completedSets.insert(setId)
                                     }
                                     checkCompletion()
-                                }) {
-                                    Image(systemName: completedSets.contains(setId) ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(completedSets.contains(setId) ? .green : .gray)
-                                        .font(.title2)
                                 }
                             }
-                            .padding(.vertical, 8)
                         }
                     }
                 }
             }
         }
-        .navigationTitle(group)
+        .navigationTitle(group.uppercased())
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarColorScheme(.dark, for: .navigationBar)
+        .toolbarBackground(Color.armyGreen, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .tint(.white)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Text(timeString)
                     .font(.headline)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.white)
             }
         }
         .onDisappear {
@@ -489,4 +497,28 @@ struct MainWorkoutView: View {
             print("Error saving changes: \(error)")
         }
     }
+}
+
+#Preview {
+    let container = try! ModelContainer(for: Exercise.self, WorkoutHistory.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    
+    // Add sample Challenger exercises and stretch exercises
+    let sampleExercises = [
+        // Challenger exercises
+        Exercise(id: "1", group: "Challenger", name: "Burpees", numReps: 10, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "2", group: "Challenger", name: "Mountain Climbers", numReps: 20, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "3", group: "Challenger", name: "Squat Jumps", numReps: 15, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "4", group: "Challenger", name: "Push-up to T", numReps: 8, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        
+        // Stretch exercises (needed for the stretch phase)
+        Exercise(id: "5", group: "Stretch", name: "Hamstring Stretch", numReps: 30, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "6", group: "Stretch", name: "Quad Stretch", numReps: 20, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0)
+    ]
+    
+    for exercise in sampleExercises {
+        container.mainContext.insert(exercise)
+    }
+    
+    return WorkoutFlowView(targetGroup: "Challenger", lastWorkoutGroup: .constant("Falcon"))
+        .modelContainer(container)
 }

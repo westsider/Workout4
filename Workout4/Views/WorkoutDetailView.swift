@@ -48,7 +48,7 @@ struct WorkoutDetailView: View {
                                     }
                                 }) {
                                     Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].weight > 0 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].weight > 0 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].weight <= 0)
                                 
@@ -62,7 +62,7 @@ struct WorkoutDetailView: View {
                                     saveChanges()
                                 }) {
                                     Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(.blue)
+                                        .foregroundColor(.armyGreen)
                                 }
                             }
                             
@@ -87,7 +87,7 @@ struct WorkoutDetailView: View {
                                     }
                                 }) {
                                     Image(systemName: "minus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].numSets > 1 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].numSets > 1 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].numSets <= 1)
                                 
@@ -103,7 +103,7 @@ struct WorkoutDetailView: View {
                                     }
                                 }) {
                                     Image(systemName: "plus.circle.fill")
-                                        .foregroundColor(exerciseGroup[0].numSets < 4 ? .blue : .gray)
+                                        .foregroundColor(exerciseGroup[0].numSets < 4 ? .armyGreen : .gray)
                                 }
                                 .disabled(exerciseGroup[0].numSets >= 4)
                             }
@@ -111,10 +111,12 @@ struct WorkoutDetailView: View {
                     }) {
                         ForEach(0..<exerciseGroup[0].numSets, id: \.self) { set in
                             let setId = "\(exerciseName)-\(set)"
+                            let isCompleted = completedSets.contains(setId)
+                            
                             HStack {
                                 Text("Set \(set + 1)")
                                     .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(isCompleted ? .white : .secondary)
                                     .frame(width: 50, alignment: .leading)
                                 
                                 Spacer()
@@ -122,12 +124,16 @@ struct WorkoutDetailView: View {
                                 // Reps display
                                 Text("\(exerciseGroup[0].numReps) reps")
                                     .font(.body)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(isCompleted ? .white : .primary)
                                 
                                 Spacer()
-                                
-                                // Completion button
-                                Button(action: {
+                            }
+                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .background(isCompleted ? Color.armyGreenLight : Color.clear)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            .onTapGesture {
+                                withAnimation(.easeInOut(duration: 0.2)) {
                                     // Toggle set completion
                                     if completedSets.contains(setId) {
                                         completedSets.remove(setId)
@@ -135,13 +141,8 @@ struct WorkoutDetailView: View {
                                         completedSets.insert(setId)
                                     }
                                     checkCompletion()
-                                }) {
-                                    Image(systemName: completedSets.contains(setId) ? "checkmark.circle.fill" : "circle")
-                                        .foregroundColor(completedSets.contains(setId) ? .green : .gray)
-                                        .font(.title2)
                                 }
                             }
-                            .padding(.vertical, 8)
                         }
                     }
                 }
@@ -250,4 +251,24 @@ struct WorkoutDetailView: View {
             print("Error saving changes: \(error)")
         }
     }
+}
+
+#Preview {
+    let container = try! ModelContainer(for: Exercise.self, WorkoutHistory.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
+    
+    // Add sample Challenger exercises
+    let sampleExercises = [
+        Exercise(id: "1", group: "Challenger", name: "Burpees", numReps: 10, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "2", group: "Challenger", name: "Mountain Climbers", numReps: 20, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "3", group: "Challenger", name: "Squat Jumps", numReps: 15, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "4", group: "Challenger", name: "Push-up to T", numReps: 8, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "5", group: "Challenger", name: "Plank Jacks", numReps: 12, numSets: 2, weight: 0, completed: false, date: Date(), timeElapsed: 0)
+    ]
+    
+    for exercise in sampleExercises {
+        container.mainContext.insert(exercise)
+    }
+    
+    return WorkoutDetailView(group: "Challenger", lastWorkoutGroup: .constant("Falcon"))
+        .modelContainer(container)
 }
