@@ -42,11 +42,13 @@ class WorkoutHistory: Identifiable {
     var group: String
     var date: Date
     var timeElapsed: Int
+    var caloriesBurned: Double?
 
-    init(id: String, group: String, date: Date, timeElapsed: Int) {
+    init(id: String, group: String, date: Date, timeElapsed: Int, caloriesBurned: Double? = nil) {
         self.id = id
         self.group = group
         self.date = date
         self.timeElapsed = timeElapsed
+        self.caloriesBurned = caloriesBurned
     }
 }

@@ -107,7 +107,7 @@ class HealthKitManager {
         }
     }
     
-    private func calculateCalories(for group: String, duration: Int) -> Double {
+    func calculateCalories(for group: String, duration: Int) -> Double {
         // Average calories burned per minute for different workout types
         // These are estimates and can be adjusted based on user preferences
         let caloriesPerMinute: Double

@@ -22,18 +22,27 @@ struct HistoryView: View {
             } else {
                 List {
                     ForEach(history) { entry in
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(entry.group)
                                 .font(.headline)
-                            HStack{
+                            HStack {
                                 Text(entry.date, style: .date)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
-                                Text("\(entry.timeElapsed / 60) minutes")
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
+                                Spacer()
+                                VStack(alignment: .trailing) {
+                                    Text("\(entry.timeElapsed / 60) min")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                    if let calories = entry.caloriesBurned {
+                                        Text("\(Int(calories)) cal")
+                                            .font(.subheadline)
+                                            .foregroundColor(.orange)
+                                    }
+                                }
                             }
                         }
+                        .padding(.vertical, 2)
                     }
                     .onDelete(perform: deleteWorkout)
                 }

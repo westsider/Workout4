@@ -117,11 +117,13 @@ struct WorkoutFlowView: View {
         UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
         
         let workoutName = withCardio ? "\(group) + Cardio" : group
+        let calories = HealthKitManager.shared.calculateCalories(for: workoutName, duration: timeElapsed)
         let history = WorkoutHistory(
             id: UUID().uuidString,
             group: workoutName,
             date: Date(),
-            timeElapsed: timeElapsed
+            timeElapsed: timeElapsed,
+            caloriesBurned: calories
         )
         if withCardio {
             print("WorkoutFlowView - Saving workout: \(workoutName)")
@@ -406,11 +408,13 @@ struct MainWorkoutView: View {
                 lastWorkoutGroup = group
                 UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
                 
+                let calories = HealthKitManager.shared.calculateCalories(for: group, duration: timeElapsed)
                 let history = WorkoutHistory(
                     id: UUID().uuidString,
                     group: group,
                     date: Date(),
-                    timeElapsed: timeElapsed
+                    timeElapsed: timeElapsed,
+                    caloriesBurned: calories
                 )
                 print("MainWorkoutView - Saving workout: \(group), time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
                 modelContext.insert(history)
