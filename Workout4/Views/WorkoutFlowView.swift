@@ -19,6 +19,7 @@ struct WorkoutFlowView: View {
     @State private var timer: Timer?
     @State private var stretchCompleted = false
     @State private var showCardioOption = false
+    @State private var strengthWorkoutTime: Int = 0
     
     enum WorkoutPhase {
         case stretch
@@ -42,10 +43,12 @@ struct WorkoutFlowView: View {
                 MainWorkoutView(
                     group: targetGroup,
                     lastWorkoutGroup: $lastWorkoutGroup,
-                    initialTimeElapsed: timeElapsed,
+                    timeElapsed: $timeElapsed,  // Pass as binding for live updates
                     stretchCompleted: stretchCompleted,
                     shouldSaveWorkout: !isStrengthTrainingGroup(targetGroup),  // Only save if no cardio option
                     onComplete: {
+                        // Save the time elapsed at the end of strength workout
+                        strengthWorkoutTime = timeElapsed
                         // Check if this is a strength training workout that can have cardio
                         if isStrengthTrainingGroup(targetGroup) {
                             showCardioOption = true
@@ -58,9 +61,11 @@ struct WorkoutFlowView: View {
                 CardioWorkoutView(
                     group: targetGroup,
                     lastWorkoutGroup: $lastWorkoutGroup,
-                    initialTimeElapsed: timeElapsed,
-                    onComplete: { finalTime in
-                        saveWorkoutAndDismiss(group: targetGroup, timeElapsed: finalTime, withCardio: true)
+                    totalTimeElapsed: $timeElapsed,  // Pass binding to the master timer
+                    cardioStartTime: strengthWorkoutTime,  // When cardio started
+                    onComplete: { cardioTime in
+                        // Save with total time from master timer
+                        saveWorkoutAndDismiss(group: targetGroup, timeElapsed: timeElapsed, withCardio: true, cardioTime: cardioTime)
                     }
                 )
             }
@@ -92,17 +97,22 @@ struct WorkoutFlowView: View {
     }
     
     private func startTimer() {
+        print("WorkoutFlowView - Starting timer")
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             timeElapsed += 1
+            if timeElapsed % 30 == 0 {  // Log every 30 seconds
+                print("WorkoutFlowView - Timer: \(timeElapsed) seconds (\(timeElapsed/60) min \(timeElapsed%60) sec)")
+            }
         }
     }
     
     private func stopTimer() {
+        print("WorkoutFlowView - Stopping timer at \(timeElapsed) seconds")
         timer?.invalidate()
         timer = nil
     }
     
-    private func saveWorkoutAndDismiss(group: String, timeElapsed: Int, withCardio: Bool) {
+    private func saveWorkoutAndDismiss(group: String, timeElapsed: Int, withCardio: Bool, cardioTime: Int = 0) {
         lastWorkoutGroup = group
         UserDefaults.standard.set(group, forKey: "lastWorkoutGroup")
         
@@ -113,7 +123,14 @@ struct WorkoutFlowView: View {
             date: Date(),
             timeElapsed: timeElapsed
         )
-        print("WorkoutFlowView - Saving workout: \(workoutName), time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
+        if withCardio {
+            print("WorkoutFlowView - Saving workout: \(workoutName)")
+            print("  Stretch + Strength time: \(strengthWorkoutTime) seconds (\(strengthWorkoutTime/60) minutes)")
+            print("  Cardio time: \(cardioTime) seconds (\(cardioTime/60) minutes)")
+            print("  Total time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
+        } else {
+            print("WorkoutFlowView - Saving workout: \(workoutName), total time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
+        }
         modelContext.insert(history)
         
         // Save to HealthKit
@@ -222,7 +239,7 @@ struct StretchWorkoutView: View {
 struct MainWorkoutView: View {
     let group: String
     @Binding var lastWorkoutGroup: String?
-    let initialTimeElapsed: Int
+    @Binding var timeElapsed: Int  // Changed to binding for live updates
     let stretchCompleted: Bool
     var shouldSaveWorkout: Bool = true  // Flag to control if this view should save
     let onComplete: (() -> Void)?
@@ -242,8 +259,8 @@ struct MainWorkoutView: View {
     }
     
     var timeString: String {
-        let minutes = initialTimeElapsed / 60
-        let seconds = initialTimeElapsed % 60
+        let minutes = timeElapsed / 60
+        let seconds = timeElapsed % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
@@ -393,14 +410,14 @@ struct MainWorkoutView: View {
                     id: UUID().uuidString,
                     group: group,
                     date: Date(),
-                    timeElapsed: initialTimeElapsed
+                    timeElapsed: timeElapsed
                 )
-                print("WorkoutFlowView - Saving workout: \(group), time: \(initialTimeElapsed) seconds (\(initialTimeElapsed/60) minutes)")
+                print("MainWorkoutView - Saving workout: \(group), time: \(timeElapsed) seconds (\(timeElapsed/60) minutes)")
                 modelContext.insert(history)
                 
                 // Save to HealthKit
-                print("WorkoutFlowView - Saving to HealthKit: \(group), time: \(initialTimeElapsed) seconds")
-                HealthKitManager.shared.saveWorkout(group: group, timeElapsed: initialTimeElapsed) { success in
+                print("MainWorkoutView - Saving to HealthKit: \(group), time: \(timeElapsed) seconds")
+                HealthKitManager.shared.saveWorkout(group: group, timeElapsed: timeElapsed) { success in
                     if success {
                         print("Workout saved to HealthKit successfully")
                     } else {

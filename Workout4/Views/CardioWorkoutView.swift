@@ -11,23 +11,23 @@ import SwiftData
 struct CardioWorkoutView: View {
     let group: String
     @Binding var lastWorkoutGroup: String?
-    let initialTimeElapsed: Int
-    let onComplete: ((Int) -> Void)?  // Callback with total time elapsed
+    @Binding var totalTimeElapsed: Int  // Binding to master timer
+    let cardioStartTime: Int  // Time when cardio phase started
+    let onComplete: ((Int) -> Void)?  // Callback with cardio time only
     
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @State private var timer: Timer?
-    @State private var timeElapsed: Int = 0
     @State private var showEndWorkoutConfirmation = false
     
-    var totalTimeElapsed: Int {
-        initialTimeElapsed + timeElapsed
+    var cardioTimeElapsed: Int {
+        totalTimeElapsed - cardioStartTime  // Calculate cardio time from master timer
     }
     
     var timeString: String {
-        let minutes = totalTimeElapsed / 60
-        let seconds = totalTimeElapsed % 60
+        // Display only cardio time
+        let minutes = cardioTimeElapsed / 60
+        let seconds = cardioTimeElapsed % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
@@ -64,12 +64,6 @@ struct CardioWorkoutView: View {
         .padding()
         .navigationTitle("Cardio Session")
         .navigationBarBackButtonHidden(true)
-        .onAppear {
-            startTimer()
-        }
-        .onDisappear {
-            stopTimer()
-        }
         .alert("End Workout?", isPresented: $showEndWorkoutConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("End Workout", role: .destructive) {
@@ -80,23 +74,10 @@ struct CardioWorkoutView: View {
         }
     }
     
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            timeElapsed += 1
-        }
-    }
-    
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
-    }
-    
     private func endWorkout() {
-        stopTimer()
-        
-        // Call the completion handler with total time
+        // Call the completion handler with cardio time only
         if let onComplete = onComplete {
-            onComplete(totalTimeElapsed)
+            onComplete(cardioTimeElapsed)
         } else {
             // Fallback for preview/testing
             dismiss()
@@ -105,6 +86,6 @@ struct CardioWorkoutView: View {
 }
 
 #Preview {
-    CardioWorkoutView(group: "Falcon", lastWorkoutGroup: .constant(nil), initialTimeElapsed: 600, onComplete: nil)
+    CardioWorkoutView(group: "Falcon", lastWorkoutGroup: .constant(nil), totalTimeElapsed: .constant(600), cardioStartTime: 300, onComplete: nil)
         .modelContainer(for: [Exercise.self, WorkoutHistory.self], inMemory: true)
 }
