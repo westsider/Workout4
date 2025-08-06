@@ -108,7 +108,7 @@ struct TrainingPlanView: View {
             .navigationTitle("BASIC TRAINING")
             .navigationBarTitleDisplayMode(.large)
             .toolbarColorScheme(.dark, for: .navigationBar)
-            .toolbarBackground(Color(red: 0.28, green: 0.40, blue: 0.25), for: .navigationBar)
+            .toolbarBackground(Color.armyGreen, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .onAppear {
                 // Debug: Print the number of exercises fetched

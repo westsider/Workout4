@@ -49,7 +49,7 @@ struct HistoryView: View {
                 x: .value("Date", item.date, unit: .day),
                 y: .value("Calories", item.calories)
             )
-            .foregroundStyle(item.calories > 0 ? Color(red: 0.33, green: 0.42, blue: 0.18) : Color.clear)
+            .foregroundStyle(item.calories > 0 ? Color.armyGreen : Color.clear)
         }
         .frame(height: 150)
         .chartXAxis {
@@ -116,7 +116,7 @@ struct HistoryView: View {
                 .navigationTitle("HISTORY")
                 .navigationBarTitleDisplayMode(.large)
                 .toolbarColorScheme(.dark, for: .navigationBar)
-                .toolbarBackground(Color(red: 0.28, green: 0.40, blue: 0.25), for: .navigationBar)
+                .toolbarBackground(Color.armyGreen, for: .navigationBar)
                 .toolbarBackground(.visible, for: .navigationBar)
             }
         }

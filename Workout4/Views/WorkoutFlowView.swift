@@ -180,21 +180,20 @@ struct StretchWorkoutView: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 // Header section
-                VStack(spacing: 8) {
-                    Text("COMPLETE STRETCHES")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .fontWeight(.medium)
-                    Text("BEFORE WORKOUT")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .fontWeight(.medium)
-                }
-                .padding(.top, 16)
-                .padding(.bottom, 24)
+//                VStack(spacing: 8) {
+//                    Text("COMPLETE STRETCHES")
+//                        .font(.caption)
+//                        .foregroundColor(.secondary)
+//                        .fontWeight(.medium)
+//                    Text("BEFORE WORKOUT")
+//                        .font(.caption)
+//                        .foregroundColor(.secondary)
+//                        .fontWeight(.medium)
+//                }
+//                .padding(.top, 16)
+//                .padding(.bottom, 24)
                 
                 // Exercise list
                 List {
@@ -211,7 +210,7 @@ struct StretchWorkoutView: View {
                                     .foregroundColor(isCompleted ? .white : .primary)
                                     .padding(5)
                                     .frame(width: 50, height: 50)
-                                    .background(isCompleted ? Color.mint : Color.clear)
+                                    .background(isCompleted ? Color.armyGreen.opacity(0.5) : Color.clear)
                                     .clipShape(RoundedRectangle(cornerRadius: 8))
                                 
                                 // Exercise details
@@ -229,7 +228,7 @@ struct StretchWorkoutView: View {
                             }
                             .padding(.vertical, 8)
                             .padding(.horizontal, 16)
-                            .background(isCompleted ? Color.mint : Color.clear)
+                            .background(isCompleted ? Color.armyGreen.opacity(0.5) : Color.clear)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                             .onTapGesture {
                                 withAnimation(.easeInOut(duration: 0.2)) {
@@ -253,19 +252,23 @@ struct StretchWorkoutView: View {
             }
             .navigationTitle("Stretch First")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(Color.armyGreen, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .tint(.white)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Text(timeString)
                         .font(.headline)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.white)
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Skip") {
                         onComplete()
                     }
+                    .foregroundColor(.white)
                 }
             }
-        }
     }
 }
 
