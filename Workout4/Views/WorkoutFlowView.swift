@@ -193,6 +193,23 @@ struct StretchWorkoutView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
     
+    private func imageNameForExercise(_ exerciseName: String) -> String {
+        switch exerciseName.lowercased() {
+        case "band pulls":
+            return "band-pulls"
+        case "glute back bridges":
+            return "glute-back-bridge"
+        case "hip flexor stretch":
+            return "hip-flexor-stretch"
+        case "yoga push up":
+            return "yoga-push-up"
+        case "fire hydrant":
+            return "fire-hydrant"
+        default:
+            return "yogapose2"  // Fallback to generic yoga pose
+        }
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
                 // Header section
@@ -217,10 +234,10 @@ struct StretchWorkoutView: View {
                             
                             HStack(spacing: 16) {
                                 // Exercise icon
-                                Image("yogapose2")
+                                Image(imageNameForExercise(exerciseName))
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width: 40, height: 40)
+                                    .frame(width: 80, height: 80)
                                     .foregroundColor(isCompleted ? .white : .primary)
                                     .padding(5)
                                     .frame(width: 50, height: 50)

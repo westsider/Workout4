@@ -103,7 +103,7 @@ struct HistoryView: View {
                                         if let calories = entry.caloriesBurned {
                                             Text("\(Int(calories)) cal")
                                                 .font(.subheadline)
-                                                .foregroundColor(.orange)
+                                                .foregroundColor(.green)
                                         }
                                     }
                                 }
