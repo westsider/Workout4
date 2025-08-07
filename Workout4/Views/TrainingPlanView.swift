@@ -127,7 +127,9 @@ struct TrainingPlanView: View {
     }
     
     private func lastWorkoutDate(for group: String) -> String? {
-        if let workout = workoutHistory.first(where: { $0.group == group }) {
+        if let workout = workoutHistory.first(where: { 
+            $0.group == group || $0.group == "\(group) + Cardio" 
+        }) {
             let formatter = DateFormatter()
             formatter.dateFormat = "MMM d, yyyy h:mma"
             return formatter.string(from: workout.date)
@@ -136,7 +138,9 @@ struct TrainingPlanView: View {
     }
     
     private func lastWorkoutDuration(for group: String) -> String? {
-        if let workout = workoutHistory.first(where: { $0.group == group }) {
+        if let workout = workoutHistory.first(where: { 
+            $0.group == group || $0.group == "\(group) + Cardio" 
+        }) {
             let minutes = workout.timeElapsed / 60
             let seconds = workout.timeElapsed % 60
             return String(format: "%02d:%02d", minutes, seconds)
