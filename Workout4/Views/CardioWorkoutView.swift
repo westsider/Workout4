@@ -45,12 +45,13 @@ struct CardioWorkoutView: View {
             
             Image("Elliptical")
                 .resizable()
-                .scaledToFill()
-                .frame(width: 300, height: 300)
+                .scaledToFit()
+                .frame(maxWidth: .infinity)
                 .cornerRadius(7) // Inner corner radius
                 .padding(5) // Width of the border
                 .background(Color.armyGreen) // Color of the border
                 .cornerRadius(10)
+                .padding(.horizontal)
             
             Button(action: {
                 showEndWorkoutConfirmation = true
