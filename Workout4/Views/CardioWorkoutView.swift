@@ -33,15 +33,13 @@ struct CardioWorkoutView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            Spacer()
             Text("CARDIO")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.armyGreen)
+                .font(.system(size: 60, weight: .thin, design: .monospaced))
+                .tracking(10)
                 
 
-            Text(timeString)
-                .font(.system(size: 60, weight: .thin, design: .monospaced))
-                .foregroundColor(.armyGreen)
+            
             
             Image("Elliptical")
                 .resizable()
@@ -66,11 +64,16 @@ struct CardioWorkoutView: View {
                     .cornerRadius(12)
             }
             .padding(.horizontal)
+            
+            Text(timeString)
+                .font(.system(size: 60, weight: .thin, design: .monospaced))
+                .foregroundColor(.armyGreen)
+            
             Spacer()
         }
         .padding()
-        .navigationTitle("Cardio Session")
-        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarHidden(true)
         .alert("End Workout?", isPresented: $showEndWorkoutConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("End Workout", role: .destructive) {
