@@ -19,6 +19,7 @@ struct CardioWorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var showEndWorkoutConfirmation = false
+    @State private var showQuitConfirmation = false
     
     var cardioTimeElapsed: Int {
         totalTimeElapsed - cardioStartTime  // Calculate cardio time from master timer
@@ -33,6 +34,20 @@ struct CardioWorkoutView: View {
     
     var body: some View {
         VStack(spacing: 16) {
+            HStack {
+                Button(action: {
+                    showQuitConfirmation = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.armyGreen)
+                }
+                .padding()
+                Spacer()
+            }
+            
             Spacer()
             Text("CARDIO")
                 .font(.system(size: 60, weight: .thin, design: .monospaced))
@@ -81,6 +96,14 @@ struct CardioWorkoutView: View {
             }
         } message: {
             Text("Are you sure you want to end the workout?")
+        }
+        .alert("Quit Workout?", isPresented: $showQuitConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Quit", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Are you sure you want to quit this workout? Your progress will not be saved.")
         }
     }
     

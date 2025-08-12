@@ -20,6 +20,7 @@ struct WorkoutDetailView: View {
     @State private var allCompleted: Bool = false
     @State private var completedSets: Set<String> = []
     @State private var startTime: Date = Date()
+    @State private var showQuitConfirmation = false
     
     // Filter exercises for the current group
     var exercises: [Exercise] {
@@ -150,12 +151,31 @@ struct WorkoutDetailView: View {
             }
         }
         .navigationTitle(group)
+        .navigationBarBackButtonHidden(true)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    showQuitConfirmation = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Text(timeString)
                     .font(.headline)
                     .foregroundColor(.blue)
             }
+        }
+        .alert("Quit Workout?", isPresented: $showQuitConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Quit", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Are you sure you want to quit this workout? Your progress will not be saved.")
         }
         .onAppear {
             startTimer()

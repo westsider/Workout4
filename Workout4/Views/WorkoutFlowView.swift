@@ -166,10 +166,12 @@ struct WorkoutFlowView: View {
 struct StretchWorkoutView: View {
     @Query private var allExercises: [Exercise]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @Binding var timeElapsed: Int
     let onComplete: () -> Void
     
     @State private var completedExercises: Set<String> = []
+    @State private var showQuitConfirmation = false
     
     var stretchExercises: [Exercise] {
         allExercises.filter { $0.group.lowercased() == "stretch" }
@@ -283,11 +285,23 @@ struct StretchWorkoutView: View {
             }
             .navigationTitle("Stretch First")
             .navigationBarTitleDisplayMode(.large)
+            .navigationBarBackButtonHidden(true)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbarBackground(Color.armyGreen, for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .tint(.white)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showQuitConfirmation = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "chevron.left")
+                            Text("Back")
+                        }
+                        .foregroundColor(.white)
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Text(timeString)
                         .font(.headline)
@@ -299,6 +313,14 @@ struct StretchWorkoutView: View {
                     }
                     .foregroundColor(.white)
                 }
+            }
+            .alert("Quit Workout?", isPresented: $showQuitConfirmation) {
+                Button("Cancel", role: .cancel) { }
+                Button("Quit", role: .destructive) {
+                    dismiss()
+                }
+            } message: {
+                Text("Are you sure you want to quit this workout? Your progress will not be saved.")
             }
     }
 }
@@ -316,6 +338,7 @@ struct MainWorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var completedSets: Set<String> = []
+    @State private var showQuitConfirmation = false
     
     var exercises: [Exercise] {
         allExercises.filter { $0.group == group }
@@ -449,16 +472,36 @@ struct MainWorkoutView: View {
         }
         .navigationTitle(group.uppercased())
         .navigationBarTitleDisplayMode(.large)
+        .navigationBarBackButtonHidden(true)
         .toolbarColorScheme(.dark, for: .navigationBar)
         .toolbarBackground(Color.armyGreen, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .tint(.white)
         .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    showQuitConfirmation = true
+                }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                    .foregroundColor(.white)
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Text(timeString)
                     .font(.headline)
                     .foregroundColor(.white)
             }
+        }
+        .alert("Quit Workout?", isPresented: $showQuitConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Quit", role: .destructive) {
+                dismiss()
+            }
+        } message: {
+            Text("Are you sure you want to quit this workout? Your progress will not be saved.")
         }
         .onDisappear {
             resetCompletedStatus()
