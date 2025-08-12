@@ -30,7 +30,7 @@ struct TrainingPlanView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             List {
                 if exercises.isEmpty {
                     Text("No workouts available!")
