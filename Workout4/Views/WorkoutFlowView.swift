@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import AVKit
 
 struct WorkoutFlowView: View {
     let targetGroup: String
@@ -172,6 +173,8 @@ struct StretchWorkoutView: View {
     
     @State private var completedExercises: Set<String> = []
     @State private var showQuitConfirmation = false
+    @State private var showingVideoPlayer = false
+    @State private var selectedVideoURL: URL?
     
     var stretchExercises: [Exercise] {
         allExercises.filter { $0.group.lowercased() == "stretch" }
@@ -212,6 +215,59 @@ struct StretchWorkoutView: View {
         }
     }
     
+    private func videoFileNameForExercise(_ exerciseName: String) -> String? {
+        switch exerciseName.lowercased() {
+        case "band pulls":
+            return "band_pulls_final"
+        case "glute back bridges":
+            return "glute-bridges-final"
+        case "hip flexor stretch":
+            return "hip-flexor-final"
+        case "yoga push up":
+            return "Yoga-push-up-final"
+        case "fire hydrant":
+            return "fire-hydrant-final"
+        default:
+            return nil
+        }
+    }
+    
+    private func findVideoURL(for exerciseName: String) -> URL? {
+        guard let videoName = videoFileNameForExercise(exerciseName) else { return nil }
+        
+        // First try to find in the bundle
+        if let url = Bundle.main.url(forResource: videoName, withExtension: "mov") {
+            return url
+        }
+        if let url = Bundle.main.url(forResource: videoName, withExtension: "mp4") {
+            return url
+        }
+        
+        // If not in bundle, try to find in Videos subfolder
+        if let url = Bundle.main.url(forResource: videoName, withExtension: "mov", subdirectory: "Videos") {
+            return url
+        }
+        if let url = Bundle.main.url(forResource: videoName, withExtension: "mp4", subdirectory: "Videos") {
+            return url
+        }
+        
+        // If still not found, try document directory as fallback
+        let documentsPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let videosPath = documentsPath.appendingPathComponent("Videos")
+        
+        let movURL = videosPath.appendingPathComponent("\(videoName).mov")
+        if FileManager.default.fileExists(atPath: movURL.path) {
+            return movURL
+        }
+        
+        let mp4URL = videosPath.appendingPathComponent("\(videoName).mp4")
+        if FileManager.default.fileExists(atPath: mp4URL.path) {
+            return mp4URL
+        }
+        
+        return nil
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
                 // Header section
@@ -227,61 +283,85 @@ struct StretchWorkoutView: View {
 //                }
 //                .padding(.top, 16)
 //                .padding(.bottom, 24)
-                
+                       
                 // Exercise list
-                List {
-                    ForEach(sortedExerciseNames, id: \.self) { exerciseName in
-                        if let exerciseGroup = groupedExercises[exerciseName] {
-                            let isCompleted = completedExercises.contains(exerciseName)
-                            
-                            HStack(spacing: 16) {
-                                // Exercise icon
-                                Image(imageNameForExercise(exerciseName))
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(width: 80, height: 80)
-                                    .foregroundColor(isCompleted ? .white : .primary)
-                                    .padding(5)
-                                    .frame(width: 50, height: 50)
-                                    .background(isCompleted ? Color.armyGreenLight : Color.clear)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(sortedExerciseNames, id: \.self) { exerciseName in
+                            if let exerciseGroup = groupedExercises[exerciseName] {
+                                let isCompleted = completedExercises.contains(exerciseName)
                                 
-                                // Exercise details
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(exerciseName)
-                                        .font(.headline)
-                                        .foregroundColor(isCompleted ? .white : .primary)
-                                    
-                                    Text("\(exerciseGroup[0].numReps) reps")
-                                        .font(.subheadline)
-                                        .foregroundColor(isCompleted ? .white.opacity(0.8) : .secondary)
-                                }
-                                
-                                Spacer()
-                            }
-                            .padding(.vertical, 8)
-                            .padding(.horizontal, 16)
-                            .background(isCompleted ? Color.armyGreenLight : Color.clear)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .onTapGesture {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    if isCompleted {
-                                        completedExercises.remove(exerciseName)
-                                    } else {
-                                        completedExercises.insert(exerciseName)
-                                    }
-                                    
-                                    if allExercisesCompleted {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                            onComplete()
+                                HStack(spacing: 12) {
+                                    // Checkbox for completion
+                                    Button(action: {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            if isCompleted {
+                                                completedExercises.remove(exerciseName)
+                                            } else {
+                                                completedExercises.insert(exerciseName)
+                                            }
+                                            
+                                            if allExercisesCompleted {
+                                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                    onComplete()
+                                                }
+                                            }
                                         }
+                                    }) {
+                                        Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                                            .font(.system(size: 28))
+                                            .foregroundColor(isCompleted ? .armyGreen : .gray)
+                                    }
+                                    
+                                    // Exercise icon
+                                    Image(imageNameForExercise(exerciseName))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 50, height: 50)
+                                        .foregroundColor(.primary)
+                                    
+                                    // Exercise details
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(exerciseName)
+                                            .font(.headline)
+                                            .foregroundColor(.primary)
+                                        
+                                        Text("\(exerciseGroup[0].numReps) reps")
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    // Video tutorial button
+                                    if videoFileNameForExercise(exerciseName) != nil {
+                                        Button(action: {
+                                            print("Video button tapped for: \(exerciseName)")
+                                            if let url = findVideoURL(for: exerciseName) {
+                                                print("Found video at: \(url)")
+                                                selectedVideoURL = url
+                                                showingVideoPlayer = true
+                                            } else {
+                                                print("No video found for: \(exerciseName)")
+                                                // Show an alert or fallback
+                                            }
+                                        }) {
+                                            Image(systemName: "play.circle.fill")
+                                                .font(.system(size: 32))
+                                                .foregroundColor(.armyGreen)
+                                        }
+                                        .buttonStyle(PlainButtonStyle())
                                     }
                                 }
+                                .padding(.vertical, 12)
+                                .padding(.horizontal, 16)
+                                .background(Color(.systemGray6))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
                             }
                         }
                     }
+                    .padding(.horizontal, 16)
                 }
-                .listStyle(PlainListStyle())
             }
             .navigationTitle("Stretch First")
             .navigationBarTitleDisplayMode(.large)
@@ -322,6 +402,86 @@ struct StretchWorkoutView: View {
             } message: {
                 Text("Are you sure you want to quit this workout? Your progress will not be saved.")
             }
+            .fullScreenCover(isPresented: $showingVideoPlayer) {
+                if let videoURL = selectedVideoURL {
+                    FullScreenVideoPlayer(url: videoURL, isPresented: $showingVideoPlayer)
+                } else {
+                    VStack {
+                        Text("Video not available")
+                            .font(.title2)
+                            .foregroundColor(.secondary)
+                        
+                        Button("Close") {
+                            showingVideoPlayer = false
+                        }
+                        .padding()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.black)
+                }
+            }
+    }
+}
+
+struct FullScreenVideoPlayer: View {
+    let url: URL
+    @Binding var isPresented: Bool
+    @State private var player: AVPlayer?
+    
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            
+            if let player = player {
+                VideoPlayer(player: player)
+                    .ignoresSafeArea()
+            }
+            
+            // Close button overlay
+            VStack {
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        player?.pause()
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                    .padding()
+                }
+                Spacer()
+            }
+        }
+        .onAppear {
+            print("FullScreenVideoPlayer appeared with URL: \(url)")
+            setupPlayer()
+        }
+        .onDisappear {
+            player?.pause()
+            player = nil
+        }
+    }
+    
+    private func setupPlayer() {
+        player = AVPlayer(url: url)
+        
+        // Enable auto play
+        player?.play()
+        
+        // Optional: Set up looping (uncomment if you want the video to loop)
+        // NotificationCenter.default.addObserver(
+        //     forName: .AVPlayerItemDidPlayToEndTime,
+        //     object: player?.currentItem,
+        //     queue: .main
+        // ) { _ in
+        //     player?.seek(to: CMTime.zero)
+        //     player?.play()
+        // }
     }
 }
 
@@ -576,7 +736,7 @@ struct MainWorkoutView: View {
 #Preview {
     let container = try! ModelContainer(for: Exercise.self, WorkoutHistory.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
     
-    // Add sample Challenger exercises and stretch exercises
+    // Add sample Challenger exercises and ALL stretch exercises for preview
     let sampleExercises = [
         // Challenger exercises
         Exercise(id: "1", group: "Challenger", name: "Burpees", numReps: 10, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
@@ -584,9 +744,12 @@ struct MainWorkoutView: View {
         Exercise(id: "3", group: "Challenger", name: "Squat Jumps", numReps: 15, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
         Exercise(id: "4", group: "Challenger", name: "Push-up to T", numReps: 8, numSets: 3, weight: 0, completed: false, date: Date(), timeElapsed: 0),
         
-        // Stretch exercises (needed for the stretch phase)
-        Exercise(id: "5", group: "Stretch", name: "Hamstring Stretch", numReps: 30, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
-        Exercise(id: "6", group: "Stretch", name: "Quad Stretch", numReps: 20, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0)
+        // All Stretch exercises with video tutorials
+        Exercise(id: "5", group: "Stretch", name: "Band Pulls", numReps: 15, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "6", group: "Stretch", name: "Glute Back Bridges", numReps: 20, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "7", group: "Stretch", name: "Hip Flexor Stretch", numReps: 30, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "8", group: "Stretch", name: "Yoga Push Up", numReps: 10, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0),
+        Exercise(id: "9", group: "Stretch", name: "Fire Hydrant", numReps: 15, numSets: 1, weight: 0, completed: false, date: Date(), timeElapsed: 0)
     ]
     
     for exercise in sampleExercises {
