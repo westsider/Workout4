@@ -47,7 +47,7 @@
       {
         "id": "some-uuid-5",
         "group": "Falcon",
-        "name": "Leg Raises",
+        "name": "Barbell Curl",
         "numReps": 8,
         "numSets": 3,
         "weight": 0,
@@ -104,7 +104,7 @@
       {
         "id": "some-uuid-10",
         "group": "Deep Horizon",
-        "name": "Leg Raises",
+        "name": "Decline Sit Up",
         "numReps": 8,
         "numSets": 3,
         "weight": 0,

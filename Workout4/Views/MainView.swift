@@ -58,26 +58,91 @@ struct MainView: View {
             let existingExercises = try modelContext.fetch(fetchDescriptor)
             if existingExercises.isEmpty {
                 // Load the JSON file from the bundle
-                if let url = Bundle.main.url(forResource: "exercise", withExtension: "json") {
-                    do {
-                        let data = try Data(contentsOf: url)
-                        let jsonString = String(data: data, encoding: .utf8)
-                        if let jsonString = jsonString {
-                            loadExercises(from: jsonString, context: modelContext)
-                        } else {
-                            print("Error: Could not convert JSON data to string")
-                        }
-                    } catch {
-                        print("Error loading JSON file: \(error)")
-                    }
-                } else {
-                    print("Error: Could not find exercise.json in the bundle")
-                }
+                loadExercisesFromJSON()
             } else {
                 print("Data already loaded: \(existingExercises.count) exercises")
+                // Check if we need to force reload (for development/updates)
+                checkForDataUpdate(existingCount: existingExercises.count)
             }
         } catch {
             print("Error checking existing exercises: \(error)")
+        }
+    }
+    
+    private func loadExercisesFromJSON() {
+        if let url = Bundle.main.url(forResource: "exercise", withExtension: "json") {
+            do {
+                let data = try Data(contentsOf: url)
+                let jsonString = String(data: data, encoding: .utf8)
+                if let jsonString = jsonString {
+                    loadExercises(from: jsonString, context: modelContext)
+                } else {
+                    print("Error: Could not convert JSON data to string")
+                }
+            } catch {
+                print("Error loading JSON file: \(error)")
+            }
+        } else {
+            print("Error: Could not find exercise.json in the bundle")
+        }
+    }
+    
+    private func checkForDataUpdate(existingCount: Int) {
+        var needsUpdate = false
+        
+        // Check if "Decline Sit Up" exists in Deep Horizon
+        let declineDescriptor = FetchDescriptor<Exercise>(
+            predicate: #Predicate<Exercise> { exercise in
+                exercise.group == "Deep Horizon" && exercise.name == "Decline Sit Up"
+            }
+        )
+        
+        // Check if "Barbell Curl" exists in Falcon
+        let barbellDescriptor = FetchDescriptor<Exercise>(
+            predicate: #Predicate<Exercise> { exercise in
+                exercise.group == "Falcon" && exercise.name == "Barbell Curl"
+            }
+        )
+        
+        do {
+            let declineSitUps = try modelContext.fetch(declineDescriptor)
+            let barbellCurls = try modelContext.fetch(barbellDescriptor)
+            
+            if declineSitUps.isEmpty {
+                print("Decline Sit Up not found in Deep Horizon")
+                needsUpdate = true
+            }
+            
+            if barbellCurls.isEmpty {
+                print("Barbell Curl not found in Falcon")
+                needsUpdate = true
+            }
+            
+            if needsUpdate {
+                print("Updates needed, forcing data reload...")
+                forceReloadData()
+            }
+        } catch {
+            print("Error checking for updates: \(error)")
+        }
+    }
+    
+    private func forceReloadData() {
+        // Delete all existing exercises
+        let fetchDescriptor = FetchDescriptor<Exercise>()
+        do {
+            let existingExercises = try modelContext.fetch(fetchDescriptor)
+            for exercise in existingExercises {
+                modelContext.delete(exercise)
+            }
+            try modelContext.save()
+            print("Deleted \(existingExercises.count) existing exercises")
+            
+            // Now reload from JSON
+            loadExercisesFromJSON()
+            print("Reloaded exercises from JSON")
+        } catch {
+            print("Error during force reload: \(error)")
         }
     }
 }
