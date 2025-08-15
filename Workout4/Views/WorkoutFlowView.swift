@@ -499,6 +499,9 @@ struct MainWorkoutView: View {
     
     @State private var completedSets: Set<String> = []
     @State private var showQuitConfirmation = false
+    @State private var showingVideoPlayer = false
+    @State private var selectedVideoURL: URL?
+    @State private var selectedExerciseName: String = ""
     
     var exercises: [Exercise] {
         allExercises.filter { $0.group == group }
@@ -519,9 +522,28 @@ struct MainWorkoutView: View {
             ForEach(groupedExercises.keys.sorted(), id: \.self) { exerciseName in
                 if let exerciseGroup = groupedExercises[exerciseName] {
                     Section(header: VStack(alignment: .leading, spacing: 8) {
-                        Text(exerciseName)
-                            .font(.headline)
-                            .foregroundColor(.armyGreen)
+                        HStack {
+                            Text(exerciseName)
+                                .font(.headline)
+                                .foregroundColor(.armyGreen)
+                            
+                            Spacer()
+                            
+                            // Video tutorial button
+                            if VideoManager.shared.getVideoFileName(for: exerciseName, in: group) != nil {
+                                Button(action: {
+                                    if let url = VideoManager.shared.findVideoURL(for: exerciseName, in: group) {
+                                        selectedVideoURL = url
+                                        selectedExerciseName = exerciseName
+                                        showingVideoPlayer = true
+                                    }
+                                }) {
+                                    Image(systemName: "play.circle.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.armyGreen)
+                                }
+                            }
+                        }
                         
                         HStack {
                             // Weight controls
@@ -663,6 +685,11 @@ struct MainWorkoutView: View {
         } message: {
             Text("Are you sure you want to quit this workout? Your progress will not be saved.")
         }
+        .fullScreenCover(isPresented: $showingVideoPlayer) {
+            if let videoURL = selectedVideoURL {
+                ExerciseVideoPlayer(url: videoURL, exerciseName: selectedExerciseName, isPresented: $showingVideoPlayer)
+            }
+        }
         .onDisappear {
             resetCompletedStatus()
             completedSets.removeAll()
@@ -758,4 +785,62 @@ struct MainWorkoutView: View {
     
     return WorkoutFlowView(targetGroup: "Challenger", lastWorkoutGroup: .constant("Falcon"))
         .modelContainer(container)
+}
+
+// Shared video player view for exercises
+struct ExerciseVideoPlayer: View {
+    let url: URL
+    let exerciseName: String
+    @Binding var isPresented: Bool
+    @State private var player: AVPlayer?
+    
+    var body: some View {
+        ZStack {
+            Color.black
+                .ignoresSafeArea()
+            
+            if let player = player {
+                VideoPlayer(player: player)
+                    .ignoresSafeArea()
+            }
+            
+            // Close button and title overlay
+            VStack {
+                HStack {
+                    Text(exerciseName)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    Button(action: {
+                        player?.pause()
+                        isPresented = false
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .background(Color.black.opacity(0.6))
+                            .clipShape(Circle())
+                    }
+                }
+                .padding()
+                
+                Spacer()
+            }
+        }
+        .onAppear {
+            setupPlayer()
+        }
+        .onDisappear {
+            player?.pause()
+            player = nil
+        }
+    }
+    
+    private func setupPlayer() {
+        player = AVPlayer(url: url)
+        player?.play()
+    }
 }

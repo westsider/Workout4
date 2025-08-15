@@ -37,6 +37,9 @@ struct MainView: View {
             // Load exercises from the JSON file
             loadInitialData()
             
+            // List available videos for debugging
+            VideoManager.shared.listAvailableVideos()
+            
             // Request HealthKit authorization
             // Delay the request to avoid immediate crash if Info.plist not configured
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {

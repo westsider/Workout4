@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import AVKit
 
 struct WorkoutDetailView: View {
     let group: String
@@ -21,6 +22,9 @@ struct WorkoutDetailView: View {
     @State private var completedSets: Set<String> = []
     @State private var startTime: Date = Date()
     @State private var showQuitConfirmation = false
+    @State private var showingVideoPlayer = false
+    @State private var selectedVideoURL: URL?
+    @State private var selectedExerciseName: String = ""
     
     // Filter exercises for the current group
     var exercises: [Exercise] {
@@ -37,8 +41,27 @@ struct WorkoutDetailView: View {
             ForEach(groupedExercises.keys.sorted(), id: \.self) { exerciseName in
                 if let exerciseGroup = groupedExercises[exerciseName] {
                     Section(header: VStack(alignment: .leading, spacing: 8) {
-                        Text(exerciseName)
-                            .font(.headline)
+                        HStack {
+                            Text(exerciseName)
+                                .font(.headline)
+                            
+                            Spacer()
+                            
+                            // Video tutorial button
+                            if VideoManager.shared.getVideoFileName(for: exerciseName, in: group) != nil {
+                                Button(action: {
+                                    if let url = VideoManager.shared.findVideoURL(for: exerciseName, in: group) {
+                                        selectedVideoURL = url
+                                        selectedExerciseName = exerciseName
+                                        showingVideoPlayer = true
+                                    }
+                                }) {
+                                    Image(systemName: "play.circle.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
                         
                         HStack {
                             // Weight controls
@@ -176,6 +199,11 @@ struct WorkoutDetailView: View {
             }
         } message: {
             Text("Are you sure you want to quit this workout? Your progress will not be saved.")
+        }
+        .fullScreenCover(isPresented: $showingVideoPlayer) {
+            if let videoURL = selectedVideoURL {
+                ExerciseVideoPlayer(url: videoURL, exerciseName: selectedExerciseName, isPresented: $showingVideoPlayer)
+            }
         }
         .onAppear {
             startTimer()
