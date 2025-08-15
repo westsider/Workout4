@@ -38,7 +38,9 @@ struct TrainingPlanView: View {
                         .foregroundColor(.gray)
                 } else {
                     ForEach(sortedGroups, id: \.self) { group in
-                        NavigationLink(destination: destinationView(for: group)) {
+                        NavigationLink(destination: group.lowercased() == "stretch"
+                                       ? AnyView(WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup).toolbar(.hidden, for: .tabBar))
+                                       : AnyView(WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup).toolbar(.hidden, for: .tabBar))) {
                             HStack {
                                 // Placeholder for the image
                                 Group {
@@ -144,21 +146,6 @@ struct TrainingPlanView: View {
             return String(format: "%02d:%02d", minutes, seconds)
         }
         return nil
-    }
-    
-    @ViewBuilder
-    private func destinationView(for group: String) -> some View {
-        switch group.lowercased() {
-        case "stretch":
-            WorkoutDetailView(group: group, lastWorkoutGroup: $lastWorkoutGroup)
-                .toolbar(.hidden, for: .tabBar)
-        case "elliptical":
-            EllipticalWorkoutFlow(lastWorkoutGroup: $lastWorkoutGroup)
-                .toolbar(.hidden, for: .tabBar)
-        default:
-            WorkoutFlowView(targetGroup: group, lastWorkoutGroup: $lastWorkoutGroup)
-                .toolbar(.hidden, for: .tabBar)
-        }
     }
 }
 

@@ -844,3 +844,131 @@ struct ExerciseVideoPlayer: View {
         player?.play()
     }
 }
+
+
+// Special workout flow for Elliptical - goes Stretch -> Cardio directly
+struct EllipticalWorkoutFlow: View {
+    let targetGroup: String = "Elliptical"
+    @Binding var lastWorkoutGroup: String?
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    
+    @State private var currentPhase: EllipticalPhase = .stretch
+    @State private var timeElapsed: Int = 0
+    @State private var timer: Timer?
+    @State private var stretchCompleted = false
+    @State private var startTime: Date = Date()
+    @State private var cardioStartTime: Int = 0
+    
+    enum EllipticalPhase {
+        case stretch
+        case cardio
+    }
+    
+    var body: some View {
+        Group {
+            if currentPhase == .stretch {
+                StretchWorkoutView(
+                    timeElapsed: $timeElapsed,
+                    onComplete: {
+                        print("EllipticalWorkoutFlow - Stretch completed, transitioning to cardio. Time elapsed: \(timeElapsed)")
+                        cardioStartTime = timeElapsed  // Capture when cardio starts
+                        stretchCompleted = true
+                        withAnimation {
+                            currentPhase = .cardio
+                        }
+                        print("EllipticalWorkoutFlow - Phase changed to cardio, cardioStartTime: \(cardioStartTime)")
+                    }
+                )
+            } else {
+                CardioWorkoutView(
+                    group: targetGroup,
+                    lastWorkoutGroup: $lastWorkoutGroup,
+                    totalTimeElapsed: $timeElapsed,
+                    cardioStartTime: cardioStartTime, // Use the captured start time
+                    onComplete: { cardioTime in
+                        // Save elliptical workout with total time
+                        print("EllipticalWorkoutFlow - Cardio completed with \(cardioTime) cardio seconds. Total time: \(timeElapsed)")
+                        saveEllipticalWorkout(totalTime: timeElapsed)
+                    }
+                )
+            }
+        }
+        .onAppear {
+            print("EllipticalWorkoutFlow - onAppear called")
+            startTimer()
+        }
+        .onDisappear {
+            print("EllipticalWorkoutFlow - onDisappear called")
+            stopTimer()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            updateTimeFromBackground()
+        }
+    }
+    
+    private func startTimer() {
+        startTime = Date()
+        print("EllipticalWorkoutFlow - Starting timer at \(startTime)")
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
+            updateTimeElapsed()
+            if timeElapsed % 10 == 0 {  // Log every 10 seconds for better debugging
+                print("EllipticalWorkoutFlow - Timer tick: \(timeElapsed) seconds (\(timeElapsed/60) min \(timeElapsed%60) sec) - Phase: \(currentPhase == .stretch ? "stretch" : "cardio")")
+            }
+        }
+        print("EllipticalWorkoutFlow - Timer created successfully: \(timer != nil)")
+    }
+    
+    private func updateTimeElapsed() {
+        let newTime = Int(Date().timeIntervalSince(startTime))
+        if newTime != timeElapsed {  // Only log when time actually changes
+            timeElapsed = newTime
+            if timeElapsed % 5 == 0 {  // Log every 5 seconds for debugging
+                print("EllipticalWorkoutFlow - Time updated: \(timeElapsed) seconds")
+            }
+        }
+    }
+    
+    private func updateTimeFromBackground() {
+        print("EllipticalWorkoutFlow - Updating time from background")
+        updateTimeElapsed()
+    }
+    
+    private func stopTimer() {
+        print("EllipticalWorkoutFlow - Stopping timer at \(timeElapsed) seconds")
+        timer?.invalidate()
+        timer = nil
+    }
+    
+    private func saveEllipticalWorkout(totalTime: Int) {
+        lastWorkoutGroup = targetGroup
+        UserDefaults.standard.set(targetGroup, forKey: "lastWorkoutGroup")
+        
+        let calories = HealthKitManager.shared.calculateCalories(for: targetGroup, duration: totalTime)
+        let history = WorkoutHistory(
+            id: UUID().uuidString,
+            group: targetGroup,
+            date: Date(),
+            timeElapsed: totalTime,
+            caloriesBurned: calories
+        )
+        
+        print("EllipticalWorkoutFlow - Saving workout: \(targetGroup)")
+        print("  Total time: \(totalTime) seconds (\(totalTime/60) minutes)")
+        print("  Calories burned: \(calories)")
+        
+        modelContext.insert(history)
+        
+        // Save to HealthKit
+        print("EllipticalWorkoutFlow - Saving to HealthKit: \(targetGroup), time: \(totalTime) seconds")
+        HealthKitManager.shared.saveWorkout(group: targetGroup, timeElapsed: totalTime) { success in
+            if success {
+                print("Elliptical workout saved to HealthKit successfully")
+            } else {
+                print("Failed to save elliptical workout to HealthKit")
+            }
+        }
+        
+        dismiss()
+    }
+}
