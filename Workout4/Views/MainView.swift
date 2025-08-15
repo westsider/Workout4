@@ -65,7 +65,7 @@ struct MainView: View {
             } else {
                 print("Data already loaded: \(existingExercises.count) exercises")
                 // Check if we need to force reload (for development/updates)
-                checkForDataUpdate(existingCount: existingExercises.count)
+//                checkForDataUpdate(existingCount: existingExercises.count)
             }
         } catch {
             print("Error checking existing exercises: \(error)")
@@ -90,58 +90,58 @@ struct MainView: View {
         }
     }
     
-    private func checkForDataUpdate(existingCount: Int) {
-        var needsUpdate = false
-        
-        // Check if "Decline Sit Up" exists in Deep Horizon
-        let declineDescriptor = FetchDescriptor<Exercise>(
-            predicate: #Predicate<Exercise> { exercise in
-                exercise.group == "Deep Horizon" && exercise.name == "Decline Sit Up"
-            }
-        )
-        
-        // Check if "Barbell Curl" exists in Falcon
-        let barbellDescriptor = FetchDescriptor<Exercise>(
-            predicate: #Predicate<Exercise> { exercise in
-                exercise.group == "Falcon" && exercise.name == "Barbell Curl"
-            }
-        )
-        
-        // Check if "BB Upright Row" exists in Trident (checking for Trident updates)
-        let tridentDescriptor = FetchDescriptor<Exercise>(
-            predicate: #Predicate<Exercise> { exercise in
-                exercise.group == "Trident" && exercise.name == "BB Upright Row"
-            }
-        )
-        
-        do {
-            let declineSitUps = try modelContext.fetch(declineDescriptor)
-            let barbellCurls = try modelContext.fetch(barbellDescriptor)
-            let bbUprightRows = try modelContext.fetch(tridentDescriptor)
-            
-            if declineSitUps.isEmpty {
-                print("Decline Sit Up not found in Deep Horizon")
-                needsUpdate = true
-            }
-            
-            if barbellCurls.isEmpty {
-                print("Barbell Curl not found in Falcon")
-                needsUpdate = true
-            }
-            
-            if bbUprightRows.isEmpty {
-                print("BB Upright Row not found in Trident")
-                needsUpdate = true
-            }
-            
-            if needsUpdate {
-                print("Updates needed, forcing data reload...")
-                forceReloadData()
-            }
-        } catch {
-            print("Error checking for updates: \(error)")
-        }
-    }
+//    private func checkForDataUpdate(existingCount: Int) {
+//        var needsUpdate = false
+//        
+//        // Check if "Decline Sit Up" exists in Deep Horizon
+//        let declineDescriptor = FetchDescriptor<Exercise>(
+//            predicate: #Predicate<Exercise> { exercise in
+//                exercise.group == "Deep Horizon" && exercise.name == "Decline Sit Up"
+//            }
+//        )
+//        
+//        // Check if "Barbell Curl" exists in Falcon
+//        let barbellDescriptor = FetchDescriptor<Exercise>(
+//            predicate: #Predicate<Exercise> { exercise in
+//                exercise.group == "Falcon" && exercise.name == "Barbell Curl"
+//            }
+//        )
+//        
+//        // Check if "BB Upright Row" exists in Trident (checking for Trident updates)
+//        let tridentDescriptor = FetchDescriptor<Exercise>(
+//            predicate: #Predicate<Exercise> { exercise in
+//                exercise.group == "Trident" && exercise.name == "BB Upright Row"
+//            }
+//        )
+//        
+//        do {
+//            let declineSitUps = try modelContext.fetch(declineDescriptor)
+//            let barbellCurls = try modelContext.fetch(barbellDescriptor)
+//            let bbUprightRows = try modelContext.fetch(tridentDescriptor)
+//            
+//            if declineSitUps.isEmpty {
+//                print("Decline Sit Up not found in Deep Horizon")
+//                needsUpdate = true
+//            }
+//            
+//            if barbellCurls.isEmpty {
+//                print("Barbell Curl not found in Falcon")
+//                needsUpdate = true
+//            }
+//            
+//            if bbUprightRows.isEmpty {
+//                print("BB Upright Row not found in Trident")
+//                needsUpdate = true
+//            }
+//            
+//            if needsUpdate {
+//                print("Updates needed, forcing data reload...")
+//                forceReloadData()
+//            }
+//        } catch {
+//            print("Error checking for updates: \(error)")
+//        }
+//    }
     
     private func forceReloadData() {
         // Delete all existing exercises

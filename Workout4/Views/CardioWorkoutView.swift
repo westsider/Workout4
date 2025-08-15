@@ -53,9 +53,6 @@ struct CardioWorkoutView: View {
                 .font(.system(size: 60, weight: .thin, design: .monospaced))
                 .tracking(10)
                 
-
-            
-            
             Image("Elliptical")
                 .resizable()
                 .scaledToFit()
