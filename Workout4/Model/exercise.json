@@ -174,7 +174,7 @@
       {
         "id": "some-uuid-16",
         "group": "Trident",
-        "name": "Bench D",
+        "name": "BB Upright Row",
         "numReps": 8,
         "numSets": 4,
         "weight": 135,
@@ -185,7 +185,7 @@
       {
         "id": "some-uuid-17",
         "group": "Trident",
-        "name": "Curls D",
+        "name": "Bench Press",
         "numReps": 8,
         "numSets": 3,
         "weight": 50,
@@ -196,7 +196,7 @@
       {
         "id": "some-uuid-18",
         "group": "Trident",
-        "name": "Fly's",
+        "name": "Barbell Curls",
         "numReps": 8,
         "numSets": 4,
         "weight": 40,
@@ -207,7 +207,7 @@
       {
         "id": "some-uuid-19",
         "group": "Trident",
-        "name": "Chin Raises",
+        "name": "DB Flys",
         "numReps": 8,
         "numSets": 4,
         "weight": 60,
@@ -218,7 +218,7 @@
       {
         "id": "some-uuid-20",
         "group": "Trident",
-        "name": "Leg Raises",
+        "name": "Horizontal Press",
         "numReps": 8,
         "numSets": 3,
         "weight": 0,

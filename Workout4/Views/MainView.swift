@@ -104,9 +104,17 @@ struct MainView: View {
             }
         )
         
+        // Check if "BB Upright Row" exists in Trident (checking for Trident updates)
+        let tridentDescriptor = FetchDescriptor<Exercise>(
+            predicate: #Predicate<Exercise> { exercise in
+                exercise.group == "Trident" && exercise.name == "BB Upright Row"
+            }
+        )
+        
         do {
             let declineSitUps = try modelContext.fetch(declineDescriptor)
             let barbellCurls = try modelContext.fetch(barbellDescriptor)
+            let bbUprightRows = try modelContext.fetch(tridentDescriptor)
             
             if declineSitUps.isEmpty {
                 print("Decline Sit Up not found in Deep Horizon")
@@ -115,6 +123,11 @@ struct MainView: View {
             
             if barbellCurls.isEmpty {
                 print("Barbell Curl not found in Falcon")
+                needsUpdate = true
+            }
+            
+            if bbUprightRows.isEmpty {
+                print("BB Upright Row not found in Trident")
                 needsUpdate = true
             }
             
